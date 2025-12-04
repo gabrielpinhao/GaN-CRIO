@@ -1,2 +1,2 @@
-main.py foi feita com AI
-interface_manual.py foi feita do 0.
+interface+controle é o programa "completo"
+fonteobjeto esta a classe da fonte e suas funcoes
