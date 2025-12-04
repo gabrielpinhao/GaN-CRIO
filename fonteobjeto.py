@@ -13,12 +13,38 @@ class Fonte:
         try:
             self.instrumento = self.rm.open_resource(self.endereco)
             self.instrumento.timeout = 5000
-            print(f"Conectado a {self.endereco}")
+            return True
         except pyvisa.VisaIOError:
-            print("Erro ao conectar!")
+            return False
 
 
-    def ligandoFonte(self):
+    def teste(self):
+
+        try:
+            ident = self.instrumento.query('*IDN?')
+            self.instrumento.write('*RST')
+            self.instrumento.write('OUTP ON')
+            self.instrumento.write('VOLT 0.1')
+            self.instrumento.write('CURR 0')
+            time.sleep(3)
+            self.instrumento.write('VOLT 0.1')
+            self.instrumento.write('CURR 1')
+            set_curr = self.instrumento.query('CURR?')
+            set_volt = self.instrumento.query('VOLT?')
+            time.sleep(3)
+
+        finally:
+            self.instrumento.write('OUTP OFF')
+            self.instrumento.write('VOLT 0')
+            self.instrumento.write('CURR 0')
+            print("Zerar valores no instrumento...")
+            # instrumento.close()
+            print("Execução finalizada e instrumento zerado.")
+
+    def controleCorrente(self, corrente_partida, corrente_maxima, acrescimo, toff,ton):
+
+        tempo_on = float(ton)
+        tempo_off = float(toff)
 
         try:
 
@@ -31,44 +57,29 @@ class Fonte:
             self.instrumento.write('OUTP ON')
             time.sleep(1)
 
-        finally:
-            self.instrumento.write('OUTP OFF')
-            print("Zerar valores no instrumento...")
-            self.instrumento.write('VOLT 0')
-            self.instrumento.write('CURR 0')
-            # instrumento.close()
-            print("Execução finalizada e instrumento zerado.")
-
-    def controleCorrente(self, corrente_partida, corrente_maxima, acrescimo, toff,ton):
-
-        partida = corrente_partida
-        maxima = corrente_maxima
-        incremento = acrescimo
-        tempo_off = toff
-        tempo_ton = ton
-        try:
             while True:
                 # Ponto de Parada (Break Condition)
-                if partida > corrente_maxima:
+                if corrente_partida > corrente_maxima:
                     print(f"Corrente máxima de {corrente_maxima}A atingida. Encerrando o ciclo de testes.")
                     break
 
                 # Conversão para String
-                comando_curr = f'CURR {partida}'
+                comando_curr = f'CURR {corrente_partida}'
 
-                print(f"Configurando Tensão: 1V | Corrente: {partida}A")
+                print(f"Configurando Tensão: 1V | Corrente: {corrente_partida}A")
 
                 self.instrumento.write('VOLT 1')
                 self.instrumento.write(comando_curr)  # Usa o valor incrementado
-                time.sleep(0.3)
 
                 # Incremento para a próxima iteração
-                partida += incremento
+                corrente_partida += acrescimo
+
+                time.sleep(tempo_on) #Ton
 
                 # Bloco de Reset (Zera dentro do ciclo) ---
                 self.instrumento.write('VOLT 0.01')
                 self.instrumento.write('CURR 0.01')
-                time.sleep(0.3)
+                time.sleep(tempo_off) #Toff
 
         except KeyboardInterrupt:
             print("\nInterrupção detectada. Prosseguindo para zerar os valores...")
@@ -86,7 +97,19 @@ class Fonte:
 
     def controleTensao(self, tensao_partida, tensao_maxima, acrescimo, toff,ton):
 
+        tempo_on = float(ton)
+        tempo_off = float(toff)
+
         try:
+            ident = self.instrumento.query('*IDN?')
+            self.instrumento.write('*RST')
+            self.instrumento.write('VOLT 0')
+            self.instrumento.write('CURR 0.1')
+            set_curr = self.instrumento.query('CURR?')
+            set_volt = self.instrumento.query('VOLT?')
+            self.instrumento.write('OUTP ON')
+            time.sleep(1)
+
             while True:
                 # Ponto de Parada (Break Condition)
                 if tensao_partida > tensao_maxima:
@@ -100,7 +123,7 @@ class Fonte:
 
                 self.instrumento.write('VOLT 1')
                 self.instrumento.write(comando_tensao)  # Usa o valor incrementado
-                time.sleep(0.3)
+                time.sleep(tempo_on)
 
                 # Incremento para a próxima iteração
                 tensao_partida += acrescimo
@@ -108,7 +131,7 @@ class Fonte:
                 # Bloco de Reset (Zera dentro do ciclo) ---
                 self.instrumento.write('VOLT 0.01')
                 self.instrumento.write('CURR 0.01')
-                time.sleep(0.3)
+                time.sleep(tempo_off)
 
         except KeyboardInterrupt:
             print("\nInterrupção detectada. Prosseguindo para zerar os valores...")
@@ -124,7 +147,10 @@ class Fonte:
             # instrumento.close()
             print("Execução finalizada e instrumento zerado.")
 
-minha_fonte = Fonte('GPIB0::1::INSTR')
+    def seguranca(self):
 
-minha_fonte.conectar()
-minha_fonte.ligandoFonte()
+        self.instrumento.write('OUTP OFF')
+        self.instrumento.write('VOLT 0')
+        self.instrumento.write('CURR 0')
+
+
