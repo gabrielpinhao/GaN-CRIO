@@ -6,6 +6,7 @@ minha_fonte = Fonte('GPIB0::1::INSTR')
 
 root = Tk()
 root.title("Menu Agilent 6680A")
+root.iconbitmap(r'C:\Users\nitee\Desktop\GaN-CRIO\GaN-CRIO\figura.ico')
 
 def centralizar_janela(janela, largura, altura):
     """
@@ -35,6 +36,7 @@ def chamar_tensao():
     interface_tensao.geometry("250x230")
     interface_tensao.title("Controle de Tensão")
     interface_tensao['bg'] = 'lightblue'
+    interface_tensao.iconbitmap(r'C:\Users\nitee\Desktop\GaN-CRIO\GaN-CRIO\figura.ico')
 
     conexaoT = minha_fonte.conectar()
 
@@ -103,6 +105,7 @@ def chamar_corrente():
     interface_corrente.geometry("250x230")
     interface_corrente.title("Controle de Corrente")
     interface_corrente['bg'] = 'lightblue'
+    interface_corrente.iconbitmap(r'C:\Users\nitee\Desktop\GaN-CRIO\GaN-CRIO\figura.ico')
 
     conexaoT = minha_fonte.conectar()
 

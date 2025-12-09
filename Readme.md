@@ -9,7 +9,7 @@ poderiamos fazer esse arquivo como explicação das funcionalidades de cada arqu
 
 3. Correntevi: Codigo em LabView de controle (colocar em uma pasta de VIs)
 
-4. fonteobjeto: Tem todos os comandos com a classe da fonte 6680A
+4. fonteobjeto: Tem todos os comandos e conexao com a classe da fonte 6680A
 
 5. interface_gp: primeira interface
 
