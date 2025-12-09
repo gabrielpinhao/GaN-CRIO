@@ -2,7 +2,7 @@ from tkinter import *
 
 root = Tk()
 root.title("Menu")
-root.iconbitmap('C:/Users/Gabriel/OneDrive/UFF/IC/python/uffazul.ico')
+
 
 #|Função dos botoes menu
 
@@ -13,7 +13,7 @@ def chamar_tensao():
 
     # Labels janela tensão
 
-    label_tensao = Label(interface_tensao, text="Tensão de partida (V):").grid(row=0, column=0, pady=2)
+    label_tensao = Label(interface_tensao, text="Tensão de partida (V):",font=("Times New Roman", 13)).grid(row=0, column=0, pady=2)
     label_tensao_max = Label(interface_tensao, text="Tensão Máxima (V):").grid(row=1, column=0, pady=2)
     label_acrescimo = Label(interface_tensao, text="Acréscimo (V):").grid(row=2, column=0, pady=2)
     label_corrente = Label(interface_tensao, text="Corrente (A):").grid(row=3, column=0, pady=2)
