@@ -1,8 +1,5 @@
 import pyvisa
 import time
-import medidor
-
-medidor = medidor.NanoVolt('GPIB0::7::INSTR')
 
 #Criar a classe para importamos na interface depois
 class Fonte:
@@ -15,7 +12,6 @@ class Fonte:
         try:
             self.instrumento = self.rm.open_resource(self.endereco)
             self.instrumento.timeout = 5000
-            con = medidor.conectar()
             return True
         except pyvisa.VisaIOError or con == False:
             return False
@@ -44,11 +40,10 @@ class Fonte:
             # instrumento.close()
             print("Execução finalizada e instrumento zerado.")
 
-    def controleCorrente(self, corrente_partida, corrente_maxima, acrescimo, toff,ton):
+    def controleCorrente(self, corrente_partida, corrente_maxima, acrescimo, ton,toff):
 
         tempo_on = float(ton)
         tempo_off = float(toff)
-        medidor.armar_leitura()
 
         try:
 
@@ -76,9 +71,6 @@ class Fonte:
                 self.instrumento.write('VOLT 1')
                 self.instrumento.write(comando_curr)  # Usa o valor incrementado
                 time.sleep(tempo_on/2)  # Tempo para estabilização antes da medição
-                medidor.disparar_gatilho()
-                tensao = medidor.coletar_resultado()
-                print(f"  >> Tensão medida no nanovoltimetro: {tensao} V")
                 # Incremento para a próxima iteração
                 corrente_partida += acrescimo
 
@@ -99,7 +91,6 @@ class Fonte:
             print("Zerar valores no instrumento...")
             self.instrumento.write('VOLT 0')
             self.instrumento.write('CURR 0')
-            medidor.desconectar()
 
             # instrumento.close()
             print("Execução finalizada e instrumento zerado.")
