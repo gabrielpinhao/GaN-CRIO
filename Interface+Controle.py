@@ -1,7 +1,6 @@
 from tkinter import *
 import threading
 from fonteobjeto import *
-from medidor import *
 
 minha_fonte = Fonte('GPIB0::1::INSTR')
 
@@ -35,7 +34,7 @@ centralizar_janela(root, largura, comprimento)
 
 def chamar_tensao():
     interface_tensao = Toplevel(root)
-    interface_tensao.geometry("300x350")
+    interface_tensao.geometry("330x350")
     interface_tensao.title("Controle de Tensão")
     interface_tensao['bg'] = 'lightblue'
     interface_tensao.iconbitmap(r'C:\Users\nitee\Desktop\GaN-CRIO\GaN-CRIO\figura.ico')
@@ -104,7 +103,7 @@ def chamar_tensao():
 def chamar_corrente():
 
     interface_corrente = Toplevel(root)
-    interface_corrente.geometry("300x350")
+    interface_corrente.geometry("330x350")
     interface_corrente.title("Controle de Corrente")
     interface_corrente['bg'] = 'lightblue'
     interface_corrente.iconbitmap(r'C:\Users\nitee\Desktop\GaN-CRIO\GaN-CRIO\figura.ico')

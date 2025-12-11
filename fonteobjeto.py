@@ -152,5 +152,6 @@ class Fonte:
         self.instrumento.write('OUTP OFF')
         self.instrumento.write('VOLT 0')
         self.instrumento.write('CURR 0')
+        self.instrumento.close()
 
 
