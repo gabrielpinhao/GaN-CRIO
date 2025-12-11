@@ -1,6 +1,8 @@
 import pyvisa
 import time
+import medidor
 
+medidor = medidor.NanoVolt('GPIB0::7::INSTR')
 
 #Criar a classe para importamos na interface depois
 class Fonte:
@@ -13,8 +15,9 @@ class Fonte:
         try:
             self.instrumento = self.rm.open_resource(self.endereco)
             self.instrumento.timeout = 5000
+            con = medidor.conectar()
             return True
-        except pyvisa.VisaIOError:
+        except pyvisa.VisaIOError or con == False:
             return False
 
 # funçao de teste não funciona, verificar porque depois
@@ -45,17 +48,19 @@ class Fonte:
 
         tempo_on = float(ton)
         tempo_off = float(toff)
+        medidor.armar_leitura()
 
         try:
 
             ident = self.instrumento.query('*IDN?')
             self.instrumento.write('*RST')
             self.instrumento.write('VOLT 0.1')
-            self.instrumento.write('CURR 0')
+            self.instrumento.write('CURR 0.01')
             set_curr = self.instrumento.query('CURR?')
             set_volt = self.instrumento.query('VOLT?')
             self.instrumento.write('OUTP ON')
             time.sleep(1)
+
 
             while True:
                 # Ponto de Parada (Break Condition)
@@ -70,11 +75,14 @@ class Fonte:
 
                 self.instrumento.write('VOLT 1')
                 self.instrumento.write(comando_curr)  # Usa o valor incrementado
-
+                time.sleep(tempo_on/2)  # Tempo para estabilização antes da medição
+                medidor.disparar_gatilho()
+                tensao = medidor.coletar_resultado()
+                print(f"  >> Tensão medida no nanovoltimetro: {tensao} V")
                 # Incremento para a próxima iteração
                 corrente_partida += acrescimo
 
-                time.sleep(tempo_on) #Ton
+                time.sleep(tempo_on/2) #Ton
 
                 # Bloco de Reset (Zera dentro do ciclo) ---
                 self.instrumento.write('VOLT 0.01')
@@ -91,6 +99,7 @@ class Fonte:
             print("Zerar valores no instrumento...")
             self.instrumento.write('VOLT 0')
             self.instrumento.write('CURR 0')
+            medidor.desconectar()
 
             # instrumento.close()
             print("Execução finalizada e instrumento zerado.")

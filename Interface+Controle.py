@@ -1,9 +1,9 @@
 from tkinter import *
 import threading
 from fonteobjeto import *
+import medidor
 
 minha_fonte = Fonte('GPIB0::1::INSTR')
-
 
 root = Tk()
 root.title("Menu Agilent 6680A")
@@ -43,6 +43,7 @@ def chamar_tensao():
 
     if conexaoT:
         mensagem = "Instrumento Conectado"
+        medidor.configurar_para_pulsos(nplc=1)
     else:
         mensagem = "Erro ao conectar"
 

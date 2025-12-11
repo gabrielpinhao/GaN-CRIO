@@ -1,7 +1,7 @@
 import pyvisa
 import time
 
-class NanoVolt:
+class VoltimetroK2182A:
     def __init__(self, endereco_gpib):
         self.rm = pyvisa.ResourceManager()
         self.endereco = endereco_gpib
@@ -77,3 +77,60 @@ class NanoVolt:
             self.instrumento.close()
             print("Instrumento desconectado.")
         self.rm.close()
+
+k2182a = VoltimetroK2182A("GPIB0::7::INSTR")
+k2182a.conectar()
+k2182a.configurar_para_pulsos(nplc=1)
+k2182a.armar_leitura()
+time.sleep(0.2)  # Simula o tempo em que a fonte está ligada
+k2182a.disparar_gatilho()
+tensao = k2182a.coletar_resultado()
+print(f"Tensão medida: {tensao} V")
+k2182a.desconectar()
+
+
+# ==========================================
+# EXEMPLO DE USO COM FONTE PULSADA (SIMULADO)
+# ==========================================
+
+# 1. Setup
+#k2182a = VoltimetroK2182A("GPIB0::7::INSTR")
+
+#if k2182a.conectar():
+    # Configura APENAS UMA VEZ antes do loop
+    #k2182a.configurar_para_pulsos(nplc=1) 
+    
+    #print("\nIniciando sequência de pulsos...")
+    
+    # Vamos simular 5 pulsos
+    #for i in range(5):
+        #print(f"--- Pulso {i+1} ---")
+        
+        # [A] ARMAR: O voltímetro fica pronto antes do pulso começar
+        #k2182a.armar_leitura()
+        
+        # [B] FONTE ON (Aqui entra seu código da Fonte de Corrente)
+        # fonte.write("OUTPUT ON") 
+        #print("  >> Fonte LIGADA")
+        
+        # Pequeno delay para a corrente estabilizar (Settling time)
+        #time.sleep(0.05) 
+        
+        # [C] DISPARAR: Mede exatamente no platô do pulso
+        #k2182a.disparar_gatilho()
+        
+        # Aguarda o tempo da medição (NPLC 1 ~ 17ms + margem)
+        #time.sleep(0.05) 
+        
+        # [D] FONTE OFF
+        # fonte.write("OUTPUT OFF")
+        #print("  >> Fonte DESLIGADA")
+        
+        # [E] COLETAR: Pega o dado com calma
+        #valor = k2182a.coletar_resultado()
+        #print(f"  Resultado: {valor:.9f} V")
+        
+        # Tempo OFF do pulso (espera antes do próximo)
+        #time.sleep(0.5)
+
+    #k2182a.desconectar()
