@@ -17,7 +17,7 @@ class Fonte:
         except pyvisa.VisaIOError:
             return False
 
-
+# funçao de teste não funciona, verificar porque depois
     def teste(self):
 
         try:
