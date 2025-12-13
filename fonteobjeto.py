@@ -13,7 +13,7 @@ class Fonte:
             self.instrumento = self.rm.open_resource(self.endereco)
             self.instrumento.timeout = 5000
             return True
-        except pyvisa.VisaIOError or con == False:
+        except pyvisa.VisaIOError:
             return False
 
 # funçao de teste não funciona, verificar porque depois

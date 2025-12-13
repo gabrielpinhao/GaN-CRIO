@@ -4,7 +4,7 @@ from fonteobjeto import *
 from medidor import *
 
 minha_fonte = Fonte('GPIB0::1::INSTR')
-medidor_1 = Medidor('GPIB0::7::INSTR')
+
 
 
 
