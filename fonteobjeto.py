@@ -1,5 +1,8 @@
 import pyvisa
 import time
+from medidor import *
+
+medidor = NanoVolt('GPIB0::7::INSTR')  # Endereço GPIB do medidor
 
 #Criar a classe para importamos na interface depois
 class Fonte:
