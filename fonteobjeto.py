@@ -1,8 +1,9 @@
 import pyvisa
 import time
+from itertools import count
 from medidor import *
 
-medidor = NanoVolt('GPIB0::7::INSTR')  # Endereço GPIB do medidor
+m_volt = NanoVolt('GPIB0::7::INSTR')  # Endereço GPIB do medidor
 
 #Criar a classe para importamos na interface depois
 class Fonte:
@@ -60,42 +61,66 @@ class Fonte:
             time.sleep(1)
 
 
-            while True:
-                # Ponto de Parada (Break Condition)
-                if corrente_partida > corrente_maxima:
-                    print(f"Corrente máxima de {corrente_maxima}A atingida. Encerrando o ciclo de testes.")
+            for i in count(0):
+
+                inicio = time.perf_counter()
+                m_volt.armar_leitura()
+        
+                # Sua fórmula matemática original (Mais precisa para decimais!)
+                atual = (i * acrescimo) + corrente_partida
+                
+                # Arredonda por segurança de display/comando
+                atual = round(atual, 4)
+
+                if atual > corrente_maxima:
+                    print(f"Limite {corrente_maxima}A atingido. Encerrando rampagem.")
                     break
 
-                # Conversão para String
-                comando_curr = f'CURR {corrente_partida}'
+                # APLICAR CORRENTE (LIGA)
 
-                print(f"Configurando Tensão: 1V | Corrente: {corrente_partida}A")
+                comando_curr = f'CURR {atual}'
+                print(f"Corrente atual: {atual}A")
 
-                self.instrumento.write('VOLT 1')
-                self.instrumento.write(comando_curr)  # Usa o valor incrementado
-                time.sleep(tempo_on/2)  # Tempo para estabilização antes da medição
-                # Incremento para a próxima iteração
-                corrente_partida += acrescimo
+                self.instrumento.write('VOLT 0.1')
+                self.instrumento.write(comando_curr)
+                time.sleep(0.1)  # Aguarda estabilização
+                m_volt.disparar_gatilho()
+                
+                time.sleep(0.1)
 
-                time.sleep(tempo_on/2) #Ton
+                leitura_volts = m_volt.coletar_resultado()
+                print(f"Leitura: {leitura_volts:.6e} V")
+                # PULSO (ZERO)
+                print("Zerando...")
 
-                # Bloco de Reset (Zera dentro do ciclo) ---
+                fim = time.perf_counter()
+                print(f"Tempo do ciclo: {fim - inicio:.4f} segundos\n")
+
+                # APLICAR ZERO (DESLIGA)
                 self.instrumento.write('VOLT 0.01')
                 self.instrumento.write('CURR 0.01')
-                time.sleep(tempo_off) #Toff
+                # hardware.set_current(0)     <--- SEU COMANDO AQUI
+                
+                time.sleep(1)
 
         except KeyboardInterrupt:
             print("\nInterrupção detectada. Prosseguindo para zerar os valores...")
+        
+        except Exception as e:
+            print(f"\nERRO: {e}")
 
         finally:
             # Rotina de segurança
             # Desligar Saída
+             # SEGURANÇA FINAL (Roda sempre)
+            print("\n--- SAFETY: Zerando fonte ---")
             self.instrumento.write('OUTP OFF')
             print("Zerar valores no instrumento...")
             self.instrumento.write('VOLT 0')
             self.instrumento.write('CURR 0')
-
-            # instrumento.close()
+            self.instrumento.close()
+            m_volt.desconectar()
+            print("Fim.")
             print("Execução finalizada e instrumento zerado.")
 
     def controleTensao(self, tensao_partida, tensao_maxima, acrescimo, toff,ton):
@@ -158,3 +183,12 @@ class Fonte:
         self.instrumento.close()
 
 
+fonteA = Fonte('GPIB0::1::INSTR')
+fonteA.conectar()
+m_volt.conectar()
+m_volt.configurar_para_pulsos()
+
+fonteA.controleCorrente(0,4,1,1,1)
+
+fonteA.seguranca()
+m_volt.desconectar()
