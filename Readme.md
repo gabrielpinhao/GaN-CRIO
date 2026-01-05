@@ -1,4 +1,12 @@
-interface+controle é o programa "completo"
+# Canal de Comunicação
+#(use este espaço para ideias e atualizaçoes e problemas) 
+#(use este espaço para ideias e atualizaçoes e problemas) 
+#(use este espaço para ideias e atualizaçoes e problemas) 
+
+# Documentação
+
+1. interface+controle, se encontra o projeto completo, de certa forma, sendo baseado sua interface visual na biblioteca nativa do python tkinter. Para poder operar a interface em conjunto com os comandos que desejam operar simultaneamente a fonte, utilizase a biblioteca threading, tambem nativa a liguagem python, permitindo que a interface não “congele” enquanto os comandos sao executados, desde controles a medidores. ja as seguintes bibliotecas serao responsáveis por importar codigos como os responsáveis pelo controle da fonte e o controle para os medidores.
+
 fonteobjeto esta a classe da fonte e suas funcoes
 
 poderiamos fazer esse arquivo como explicação das funcionalidades de cada arquivo no repositorio
@@ -19,12 +27,3 @@ poderiamos fazer esse arquivo como explicação das funcionalidades de cada arqu
 observaçoes: mudar variaveis para tk.StringVar() para acessa mais facil dos valores
 
 8. main: verificar
-
-Canal de Comunicação
-# (use este espaço para ideias e atualizaçoes e problemas) 
-# (use este espaço para ideias e atualizaçoes e problemas) 
-# (use este espaço para ideias e atualizaçoes e problemas) 
-
-Documentação
-
-1. interface+controle, se encontra o projeto completo, de certa forma, sendo baseado sua interface visual na biblioteca nativa do python tkinter. Para poder operar a interface em conjunto com os comandos que desejam operar simultaneamente a fonte, utilizase a biblioteca threading, tambem nativa a liguagem python, permitindo que a interface não “congele” enquanto os comandos sao executados, desde controles a medidores. ja as seguintes bibliotecas serao responsáveis por importar codigos como os responsáveis pelo controle da fonte e o controle para os medidores.
