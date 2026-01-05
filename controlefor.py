@@ -38,7 +38,7 @@ except ValueError:
 print("--- INICIANDO TESTE COM FOR INFINITO ---")
 
 try:
-    # count(0) gera 0, 1, 2, 3... infinitamente (substitui o range limitado), for mais rapido que while
+    # count(0) gera 0, 1, 2, 3... infinitamente (substitui o range limitado), for mais rapido que while (em C)
     for i in count(0):
         inicio = time.perf_counter()
         m_volt.armar_leitura()
