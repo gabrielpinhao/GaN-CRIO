@@ -1,5 +1,5 @@
 # Canal de Comunicação
-#(use este espaço para ideias e atualizaçoes e problemas) 
+#arquivo controlefor que funciona com medidor(nanovoltimetro) 
 #(use este espaço para ideias e atualizaçoes e problemas) 
 #(use este espaço para ideias e atualizaçoes e problemas) 
 
