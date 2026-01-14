@@ -83,10 +83,10 @@ class Fonte:
 
                 self.instrumento.write('VOLT 0.1')
                 self.instrumento.write(comando_curr)
-                time.sleep(0.1)  # Aguarda estabilização
+                time.sleep(ton/2)  # Aguarda estabilização
                 m_volt.disparar_gatilho()
                 
-                time.sleep(0.1)
+                time.sleep(ton/2)
 
                 leitura_volts = m_volt.coletar_resultado()
                 print(f"Leitura: {leitura_volts:.6e} V")
@@ -101,7 +101,7 @@ class Fonte:
                 self.instrumento.write('CURR 0.01')
                 # hardware.set_current(0)     <--- SEU COMANDO AQUI
                 
-                time.sleep(1)
+                time.sleep(toff)
 
         except KeyboardInterrupt:
             print("\nInterrupção detectada. Prosseguindo para zerar os valores...")
@@ -181,14 +181,3 @@ class Fonte:
         self.instrumento.write('VOLT 0')
         self.instrumento.write('CURR 0')
         self.instrumento.close()
-
-
-fonteA = Fonte('GPIB0::1::INSTR')
-fonteA.conectar()
-m_volt.conectar()
-m_volt.configurar_para_pulsos()
-
-fonteA.controleCorrente(0,4,1,1,1)
-
-fonteA.seguranca()
-m_volt.desconectar()
