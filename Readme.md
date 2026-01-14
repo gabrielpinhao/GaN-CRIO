@@ -1,6 +1,6 @@
 # Canal de Comunicação
 #arquivo controlefor que funciona com medidor(nanovoltimetro) 
-#(use este espaço para ideias e atualizaçoes e problemas) 
+#Testar multimetro Agilent 
 #(use este espaço para ideias e atualizaçoes e problemas) 
 
 # Documentação

@@ -66,3 +66,7 @@ class Agilent34401A:
             print("Instrumento desconectado.")
         self.rm.close()
 
+
+# Connect to Keysight 34461A DMM
+rm = pyvisa.ResourceManager()
+print(rm.list_resources())
