@@ -28,7 +28,7 @@ time.sleep(1)
 
 # Entradas
 try:
-    valor_partida = float(input("Digite a corrente de partida (A): "))
+    valor_partida = 0
     valor_maxima = float(input("Digite a corrente máxima (A): "))
     acrescimo = float(input("Digite o acréscimo (A): "))
 except ValueError:
@@ -66,7 +66,7 @@ try:
         time.sleep(0.1)
 
         leitura_volts = m_volt.coletar_resultado()
-        print(f"Leitura: {leitura_volts:.6e} V")
+        print(f"Leitura: {leitura_volts:.6e} A")
         # PULSO (ZERO)
         print("Zerando...")
 
