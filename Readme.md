@@ -1,7 +1,7 @@
 # Canal de Comunicação
-#arquivo controlefor que funciona com medidor(nanovoltimetro) 
-#Testar multimetro Agilent 
-#(use este espaço para ideias e atualizaçoes e problemas) 
+#arquivo controlefor que funciona com medidor(nanovoltimetro e multimetro)
+#Verificar resultados do multimetro Agilent 
+#ultimo teste aconteceu um degrau na descida do pulso 
 
 # Documentação
 
