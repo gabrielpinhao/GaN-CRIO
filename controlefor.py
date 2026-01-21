@@ -2,6 +2,7 @@ import pyvisa
 import time
 from itertools import count
 from medidor import *
+from Agilent import *
 
 rm = pyvisa.ResourceManager()
 print(rm.list_resources())
@@ -9,6 +10,11 @@ print(rm.list_resources())
 m_volt = NanoVolt('GPIB0::7::INSTR')
 m_volt.conectar()
 m_volt.configurar_para_pulsos(nplc=1)
+
+# Conectar medidor Agilent 34401A
+a_volt = Agilent34401A('GPIB0::8::INSTR')
+a_volt.conectar()
+a_volt.configurar_para_pulsos(nplc=1)
 
 try:
     instrumento = rm.open_resource('GPIB0::1::INSTR')
@@ -42,6 +48,7 @@ try:
     for i in count(0):
         inicio = time.perf_counter()
         m_volt.armar_leitura()
+        a_volt.armar_leitura()
         
         # Sua fórmula matemática original (Mais precisa para decimais!)
         atual = (i * acrescimo) + valor_partida
@@ -62,11 +69,16 @@ try:
         instrumento.write(comando_curr)
         time.sleep(0.1)  # Aguarda estabilização
         m_volt.disparar_gatilho()
-        
+        a_volt.disparar_gatilho()
         time.sleep(0.1)
 
         leitura_volts = m_volt.coletar_resultado()
-        print(f"Leitura: {leitura_volts:.6e} A")
+        leitura_volts_agilent = a_volt.coletar_resultado()
+        print(f"Leitura NanoVolt: {leitura_volts:.6e} V")
+        print(f"Leitura do NanoVolt: {leitura_volts/0.00012} A.")
+
+        print(f"Leitura Agilent: {leitura_volts_agilent:.6e} V")
+
         # PULSO (ZERO)
         print("Zerando...")
 
@@ -95,4 +107,5 @@ finally:
     instrumento.write('CURR 0')
     instrumento.close()
     m_volt.desconectar()
+    a_volt.desconectar()
     print("Fim.")
