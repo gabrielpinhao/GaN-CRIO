@@ -44,17 +44,15 @@ except ValueError:
     exit()
 
 
-# ### NOVO: Configuração do Arquivo CSV ###
+# ### NOVO: Configuração do Arquivo TXT ###
 # Gera nome único com data e hora para não sobrescrever testes anteriores
-nome_arquivo = f"teste_pulso_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv"
+nome_arquivo = f"teste_pulso_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt"
 print(f"Salvando dados em: {nome_arquivo}")
 
 # Abrimos o arquivo aqui. 'newline=''' é importante no Windows para não pular linhas extras
-arquivo_csv = open(nome_arquivo, mode='w', newline='') 
-escritor = csv.writer(arquivo_csv, delimiter=';') # Ponto e vírgula é melhor para Excel no Brasil
+arquivo_txt = open(nome_arquivo, mode='w', newline='') 
+arquivo_txt.write('Iteracao\tTimestamp\tCorrente_Set (A)\tNanoVolt (V)\tCorrente_Calculada (A)\tAgilent (V)\tTempo_Ciclo (s)\n')
 
-# Escreve o cabeçalho (nomes das colunas)
-escritor.writerow(['Iteracao', 'Timestamp', 'Corrente_Set (A)', 'NanoVolt (V)', 'Corrente_Calculada (A)', 'Agilent (V)', 'Tempo_Ciclo (s)'])
 # #######################################
 
 print("--- INICIANDO TESTE COM FOR INFINITO ---")
@@ -109,10 +107,11 @@ try:
             leitura_volts_agilent,                      # Leitura Agilent
             f"{tempo_ciclo:.4f}"                        # Tempo que levou
         ]
-        escritor.writerow(linha_dados)
-        
+        linha = '\t'.join(map(str, linha_dados)) + '\n'
+        arquivo_txt.write(linha)
+
         # Flush força a gravação no disco imediatamente (bom se o programa travar, não perde dados)
-        arquivo_csv.flush() 
+        arquivo_txt.flush() 
         # ###############################
 
         # PULSO (ZERO)
@@ -138,10 +137,10 @@ finally:
     # SEGURANÇA FINAL (Roda sempre)
     # 1. Tenta fechar o arquivo CSV
     try:
-        arquivo_csv.close()
-        print(f"Arquivo CSV '{nome_arquivo}' fechado com sucesso.")
+        arquivo_txt.close()
+        print(f"Arquivo TXT '{nome_arquivo}' fechado com sucesso.")
     except:
-        print("Erro ao fechar arquivo CSV (ou não foi criado).")
+        print("Erro ao fechar arquivo TXT (ou não foi criado).")
     # 2. Zera a fonte e desconecta instrumentos
     print("\n--- SAFETY: Zerando fonte ---")
     instrumento.write('OUTP OFF')
