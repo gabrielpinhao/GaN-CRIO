@@ -1,4 +1,4 @@
-import csv
+
 from datetime import datetime
 import pyvisa
 import time
@@ -138,7 +138,7 @@ finally:
     # 1. Tenta fechar o arquivo CSV
     try:
         arquivo_txt.close()
-        print(f"Arquivo TXT '{nome_arquivo}' fechado com sucesso.")
+        print(f"Arquivo TXT '{nome_arquivo}' salvo com sucesso.")
     except:
         print("Erro ao fechar arquivo TXT (ou não foi criado).")
     # 2. Zera a fonte e desconecta instrumentos
