@@ -37,8 +37,8 @@ time.sleep(1)
 # Entradas
 try:
     valor_partida = 0
-    valor_maxima = float(input("Digite a corrente máxima (A): "))
-    acrescimo = float(input("Digite o acréscimo (A): "))
+    valor_maxima = float(input("Digite a tensao máxima (V): "))
+    acrescimo = float(input("Digite o acréscimo (V): "))
 except ValueError:
     print("Erro: Digite apenas números.")
     exit()
