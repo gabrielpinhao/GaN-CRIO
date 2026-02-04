@@ -53,7 +53,7 @@ class Fonte:
 
             ident = self.instrumento.query('*IDN?')
             self.instrumento.write('*RST')
-            self.instrumento.write('VOLT 0.1')
+            self.instrumento.write('VOLT 3.0')
             self.instrumento.write('CURR 0.01')
             set_curr = self.instrumento.query('CURR?')
             set_volt = self.instrumento.query('VOLT?')
@@ -81,7 +81,7 @@ class Fonte:
                 comando_curr = f'CURR {atual}'
                 print(f"Corrente atual: {atual}A")
 
-                self.instrumento.write('VOLT 0.1')
+                self.instrumento.write('VOLT 3.0')
                 self.instrumento.write(comando_curr)
                 time.sleep(ton/2)  # Aguarda estabilização
                 m_volt.disparar_gatilho()
@@ -97,7 +97,7 @@ class Fonte:
                 print(f"Tempo do ciclo: {fim - inicio:.4f} segundos\n")
 
                 # APLICAR ZERO (DESLIGA)
-                self.instrumento.write('VOLT 0.01')
+                self.instrumento.write('VOLT 3.0')
                 self.instrumento.write('CURR 0.01')
                 # hardware.set_current(0)     <--- SEU COMANDO AQUI
                 
@@ -131,7 +131,7 @@ class Fonte:
         try:
             ident = self.instrumento.query('*IDN?')
             self.instrumento.write('*RST')
-            self.instrumento.write('VOLT 0')
+            self.instrumento.write('VOLT 3.0')
             self.instrumento.write('CURR 0.1')
             set_curr = self.instrumento.query('CURR?')
             set_volt = self.instrumento.query('VOLT?')
@@ -149,7 +149,7 @@ class Fonte:
 
                 print(f"Configurando Tensão: 1V | Corrente: {tensao_partida}A")
 
-                self.instrumento.write('VOLT 1')
+                self.instrumento.write('VOLT 3.0')
                 self.instrumento.write(comando_tensao)  # Usa o valor incrementado
                 time.sleep(tempo_on)
 
@@ -157,7 +157,7 @@ class Fonte:
                 tensao_partida += acrescimo
 
                 # Bloco de Reset (Zera dentro do ciclo) ---
-                self.instrumento.write('VOLT 0.01')
+                self.instrumento.write('VOLT 3.0')
                 self.instrumento.write('CURR 0.01')
                 time.sleep(tempo_off)
 
@@ -169,7 +169,7 @@ class Fonte:
             # Desligar Saída
             self.instrumento.write('OUTP OFF')
             print("Zerar valores no instrumento...")
-            self.instrumento.write('VOLT 0')
+            self.instrumento.write('VOLT 3.0')
             self.instrumento.write('CURR 0')
 
             # instrumento.close()

@@ -29,7 +29,7 @@ except pyvisa.VisaIOError:
 ident = instrumento.query('*IDN?')
 print(f'Identificacao do instrumento: {ident}')
 instrumento.write('*RST')
-instrumento.write('VOLT 0.1')
+instrumento.write('VOLT 5.0')
 instrumento.write('CURR 0')
 instrumento.write('OUTP ON')
 time.sleep(1)
@@ -79,12 +79,12 @@ try:
         comando_curr = f'CURR {atual}'
         print(f"Corrente atual: {atual}A")
 
-        instrumento.write('VOLT 0.1')
+        instrumento.write('VOLT 5.0')
         instrumento.write(comando_curr)
-        time.sleep(0.1)  # Aguarda estabilização
+        time.sleep(1.5)  # Aguarda estabilização
         m_volt.disparar_gatilho()
         a_volt.disparar_gatilho()
-        time.sleep(0.1)
+        time.sleep(0.3)
 
         leitura_volts = m_volt.coletar_resultado()
         leitura_volts_agilent = a_volt.coletar_resultado()
@@ -121,11 +121,11 @@ try:
         print(f"Tempo do ciclo: {tempo_ciclo:.4f} segundos\n")
 
          # APLICAR ZERO (DESLIGA)
-        instrumento.write('VOLT 0.01')
+        instrumento.write('VOLT 5.0')
         instrumento.write('CURR 0.01')
         # hardware.set_current(0)     <--- SEU COMANDO AQUI
         
-        time.sleep(1)
+        time.sleep(18.2)
 
 except KeyboardInterrupt:
     print("\nPARADA MANUAL!")
