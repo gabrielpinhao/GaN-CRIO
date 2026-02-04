@@ -114,7 +114,7 @@ class Fonte:
             print("Fim.")
             print("Execução finalizada e instrumento zerado.")
 
-    def controleTensao(self, tensao_partida, tensao_maxima, acrescimo, toff,ton):
+    def controleTensao(self, tensao_partida, tensao_maxima, acrescimo, toff,ton, corrente_limite):
 
         tempo_on = float(ton)
         tempo_off = float(toff)
@@ -129,28 +129,46 @@ class Fonte:
             self.instrumento.write('OUTP ON')
             time.sleep(1)
 
-            while True:
-                # Ponto de Parada (Break Condition)
-                if tensao_partida > tensao_maxima:
-                    print(f"Tensão máxima de {tensao_maxima}V atingida. Encerrando o ciclo de testes.")
+            for i in count(0):
+                inicio = time.perf_counter()
+        
+        # Sua fórmula matemática original (Mais precisa para decimais!)
+                atual = (i * acrescimo) + tensao_partida
+        
+        # Arredonda por segurança de display/comando
+                atual = round(atual, 4)
+
+                if atual >= tensao_maxima and atual >= 5.0:
+                    print(f"Limite {tensao_maxima}V atingido. Encerrando rampagem.")
                     break
 
-                # Conversão para String
-                comando_tensao = f'CURR {tensao_partida}'
+                # APLICAR CORRENTE (LIGA)
 
-                print(f"Configurando Tensão: 1V | Corrente: {tensao_partida}A")
+                comando_tensao = f'VOLT {atual}' # controle Tensão
+                print(f"Tensão atual: {atual}V")
 
-                self.instrumento.write('VOLT 3.0')
-                self.instrumento.write(comando_tensao)  # Usa o valor incrementado
-                time.sleep(tempo_on)
+                self.instrumento.write(f'CURR {corrente_limite}')
+                self.instrumento.write(comando_tensao)
 
-                # Incremento para a próxima iteração
-                tensao_partida += acrescimo
+                time.sleep(ton)  # Tempo ON
 
-                # Bloco de Reset (Zera dentro do ciclo) ---
-                self.instrumento.write('VOLT 3.0')
+                fim = time.perf_counter()
+                tempo_ciclo = fim - inicio
+
+                # PULSO (ZERO)
+                print("Zerando...")
+
+
+                print(f"Tempo do ciclo: {tempo_ciclo:.4f} segundos\n")
+
+                # APLICAR ZERO (DESLIGA)
+                self.instrumento.write('VOLT 0.01')
                 self.instrumento.write('CURR 0.01')
-                time.sleep(tempo_off)
+                # hardware.set_current(0)     <--- SEU COMANDO AQUI
+                
+                time.sleep(toff) # Tempo OFF
+
+
 
         except KeyboardInterrupt:
             print("\nInterrupção detectada. Prosseguindo para zerar os valores...")

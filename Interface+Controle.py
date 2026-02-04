@@ -99,7 +99,7 @@ def chamar_tensao():
 
     return chamar_tensao
 
-def chamar_corrente():
+
 
     interface_corrente = Toplevel(root)
     interface_corrente.geometry("330x350")
@@ -178,8 +178,7 @@ def chamar_corrente():
 
 # Labels Botoes menu
 
-botao_tensao = Button(root, text="Controle de Tensão",font=("Times New Roman", 13),  command=chamar_tensao).pack(pady=20, padx=50)
-botao_corrente = Button(root, text="Controle de Corrente",font=("Times New Roman", 13), command=chamar_corrente).pack(pady=15, padx=50)
+botao_tensao = Button(root, text="Controle de Tensão",font=("Times New Roman", 13),  command=chamar_tensao).pack(expand=True)
 
 root.mainloop()
 # Definir condicoes
