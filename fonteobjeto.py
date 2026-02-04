@@ -1,9 +1,6 @@
 import pyvisa
 import time
 from itertools import count
-from medidor import *
-
-m_volt = NanoVolt('GPIB0::7::INSTR')  # Endereço GPIB do medidor
 
 #Criar a classe para importamos na interface depois
 class Fonte:
@@ -64,7 +61,6 @@ class Fonte:
             for i in count(0):
 
                 inicio = time.perf_counter()
-                m_volt.armar_leitura()
         
                 # Sua fórmula matemática original (Mais precisa para decimais!)
                 atual = (i * acrescimo) + corrente_partida
@@ -83,13 +79,9 @@ class Fonte:
 
                 self.instrumento.write('VOLT 3.0')
                 self.instrumento.write(comando_curr)
-                time.sleep(ton/2)  # Aguarda estabilização
-                m_volt.disparar_gatilho()
                 
-                time.sleep(ton/2)
+                time.sleep(ton)
 
-                leitura_volts = m_volt.coletar_resultado()
-                print(f"Leitura: {leitura_volts:.6e} V")
                 # PULSO (ZERO)
                 print("Zerando...")
 
@@ -119,7 +111,6 @@ class Fonte:
             self.instrumento.write('VOLT 0')
             self.instrumento.write('CURR 0')
             self.instrumento.close()
-            m_volt.desconectar()
             print("Fim.")
             print("Execução finalizada e instrumento zerado.")
 
