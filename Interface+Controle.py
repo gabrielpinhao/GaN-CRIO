@@ -33,7 +33,7 @@ centralizar_janela(root, largura, comprimento)
 
 def chamar_tensao():
     interface_tensao = Toplevel(root)
-    interface_tensao.geometry("330x350")
+    interface_tensao.geometry("330x390")
     interface_tensao.title("Controle de Tensão")
     interface_tensao['bg'] = 'lightblue'
     interface_tensao.iconbitmap(r'C:\Users\nitee\Desktop\GaN-CRIO\GaN-CRIO\figura.ico')
@@ -53,10 +53,11 @@ def chamar_tensao():
     label_acrescimo = Label(interface_tensao, text="Acréscimo (V):",font=("Times New Roman", 13), bg='lightblue').grid(row=2, column=0, pady=2)
     label_tempo_on = Label(interface_tensao, text="Time ON (s):",font=("Times New Roman", 13), bg='lightblue').grid(row=3, column=0, pady=2)
     label_tempo_off = Label(interface_tensao, text="Time OFF (s):",font=("Times New Roman", 13), bg='lightblue').grid(row=4, column=0, pady=2)
+    label_corrente_limite = Label(interface_tensao, text="Corrente Limite (A):",font=("Times New Roman", 13), bg='lightblue').grid(row=5, column=0, pady=2)
 
-    status_tensao = Label(interface_tensao, text="Status da fonte",font=("Times New Roman", 13), bg='lightblue').grid(row=5, column=0, pady=5)
+    status_tensao = Label(interface_tensao, text="Status da fonte",font=("Times New Roman", 13), bg='lightblue').grid(row=6, column=0, pady=5)
     output_status = Label(interface_tensao, text=mensagem,font=("Times New Roman", 13), bg='lightblue')
-    output_status.grid(row=5, column=1, pady=5)
+    output_status.grid(row=6, column=1, pady=5)
 
     # Entrada de dados
 
@@ -70,6 +71,8 @@ def chamar_tensao():
     tempo_on.grid(row=3, column=1, pady=2,ipady=8)
     tempo_off = Entry(interface_tensao,font=("Times New Roman", 18), width=10)
     tempo_off.grid(row=4, column=1, pady=2,ipady=8)
+    corrente_limite = Entry(interface_tensao,font=("Times New Roman", 18), width=10)
+    corrente_limite.grid(row=5, column=1, pady=2,ipady=8)
 
     def enviar():
         try:
@@ -78,6 +81,7 @@ def chamar_tensao():
             inc = float(acrescimo.get())
             ton = float(tempo_on.get())
             toff = float(tempo_off.get())
+            cl = float(corrente_limite.get())
 
         except ValueError:
             output_status.config(text="Erro: Use apenas números!", fg="red")
@@ -91,9 +95,9 @@ def chamar_tensao():
     # Botoes
 
     botao_enviar = Button(interface_tensao, text="ENVIAR",font=("Times New Roman", 13),command=lambda: threading.Thread(target=enviar).start(), bg="Green", fg="White")
-    botao_enviar.grid(row=6, column=0)
+    botao_enviar.grid(row=7, column=0)
     botao_parar = Button(interface_tensao, text="PARAR",font=("Times New Roman", 13),command=parar, bg="Red", fg="White")
-    botao_parar.grid(row=6, column=1)
+    botao_parar.grid(row=7, column=1)
 
     # Funcoes dos botoes (a definir)
 
