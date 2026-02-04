@@ -26,8 +26,12 @@ time.sleep(1)
 # Entradas
 try:
     valor_partida = 0
+    corrente_limite = float(input("Digite a corrente limite (A): "))
     valor_maxima = float(input("Digite a tensao máxima (V): "))
     acrescimo = float(input("Digite o acréscimo (V): "))
+    ton = float(input("Digite o tempo ON (s): "))
+    toff = float(input("Digite o tempo OFF (s): "))
+
 except ValueError:
     print("Erro: Digite apenas números.")
     exit()
@@ -45,7 +49,7 @@ try:
         # Arredonda por segurança de display/comando
         atual = round(atual, 4)
 
-        if atual > valor_maxima and atual <= 5.0:
+        if atual >= valor_maxima and atual >= 5.0:
             print(f"Limite {valor_maxima}V atingido. Encerrando rampagem.")
             break
 
@@ -54,10 +58,10 @@ try:
         comando_tensao = f'VOLT {atual}' # controle TENSão
         print(f"Tensão atual: {atual}V")
 
-        instrumento.write('CURR 50')
+        instrumento.write(f'CURR {corrente_limite}')
         instrumento.write(comando_tensao)
 
-        time.sleep(0.035)  # Tempo ON
+        time.sleep(ton)  # Tempo ON
 
         fim = time.perf_counter()
         tempo_ciclo = fim - inicio
@@ -73,7 +77,7 @@ try:
         instrumento.write('CURR 0.01')
         # hardware.set_current(0)     <--- SEU COMANDO AQUI
         
-        time.sleep(1) # Tempo OFF
+        time.sleep(toff) # Tempo OFF
 
 except KeyboardInterrupt: # Cancela o codigo com Ctrl+C
     print("\nPARADA MANUAL!")
