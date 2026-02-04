@@ -83,6 +83,11 @@ def chamar_tensao():
             toff = float(tempo_off.get())
             cl = float(corrente_limite.get())
 
+            output_status.config(text="Enviando...", fg="blue")
+            root.update()  # Força atualização da tela  
+            minha_fonte.controleTensao(tp, tm, inc, toff, ton, cl)
+            output_status.config(text="Concluído!", fg="green")
+
         except ValueError:
             output_status.config(text="Erro: Use apenas números!", fg="red")
         except Exception as e:
