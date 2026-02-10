@@ -18,19 +18,25 @@ except pyvisa.VisaIOError:
 ident = instrumento.query('*IDN?')
 print(f'Identificacao do instrumento: {ident}')
 instrumento.write('*RST')
-instrumento.write('VOLT 0.1')
-instrumento.write('CURR 0.1')
+instrumento.write('VOLT 0')
+instrumento.write('CURR 0')
 instrumento.write('OUTP ON')
 time.sleep(1)
 
 # Entradas
 try:
     valor_partida = 0
-    corrente_limite = float(input("Digite a corrente limite (A): "))
-    valor_maxima = float(input("Digite a tensao máxima (V): "))
-    acrescimo = float(input("Digite o acréscimo (V): "))
-    ton = float(input("Digite o tempo ON (s): "))
-    toff = float(input("Digite o tempo OFF (s): "))
+    #corrente_limite = float(input("Digite a corrente limite (A): "))
+    #valor_maxima = float(input("Digite a tensao máxima (V): "))
+    #acrescimo = float(input("Digite o acréscimo (V): "))
+    #ton = float(input("Digite o tempo ON (s): "))
+    #toff = float(input("Digite o tempo OFF (s): "))
+
+    corrente_limite = 150
+    valor_maxima = 3
+    acrescimo = 0.2
+    ton = 0.02
+    toff = 1.78
 
 except ValueError:
     print("Erro: Digite apenas números.")
@@ -39,6 +45,7 @@ except ValueError:
 print("--- INICIANDO TESTE COM FOR INFINITO ---")
 
 try:
+    instrumento.write(f'CURR {corrente_limite}')
     # count(0) gera 0, 1, 2, 3... infinitamente (substitui o range limitado), for mais rapido que while (em C)
     for i in count(0):
         inicio = time.perf_counter()
@@ -49,7 +56,7 @@ try:
         # Arredonda por segurança de display/comando
         atual = round(atual, 4)
 
-        if atual >= valor_maxima and atual >= 5.0:
+        if atual > valor_maxima or atual > 5.0:
             print(f"Limite {valor_maxima}V atingido. Encerrando rampagem.")
             break
 
@@ -58,8 +65,8 @@ try:
         comando_tensao = f'VOLT {atual}' # controle TENSão
         print(f"Tensão atual: {atual}V")
 
-        instrumento.write(f'CURR {corrente_limite}')
         instrumento.write(comando_tensao)
+        
 
         time.sleep(ton)  # Tempo ON
 
@@ -73,11 +80,11 @@ try:
         print(f"Tempo do ciclo: {tempo_ciclo:.4f} segundos\n")
 
          # APLICAR ZERO (DESLIGA)
-        instrumento.write('VOLT 0.01')
-        instrumento.write('CURR 0.01')
+        instrumento.write('VOLT 0')
         # hardware.set_current(0)     <--- SEU COMANDO AQUI
         
         time.sleep(toff) # Tempo OFF
+    instrumento.write('CURR 0')
 
 except KeyboardInterrupt: # Cancela o codigo com Ctrl+C
     print("\nPARADA MANUAL!")

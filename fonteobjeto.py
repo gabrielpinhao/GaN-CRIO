@@ -122,13 +122,15 @@ class Fonte:
         try:
             ident = self.instrumento.query('*IDN?')
             self.instrumento.write('*RST')
-            self.instrumento.write('VOLT 3.0')
-            self.instrumento.write('CURR 0.1')
+            self.instrumento.write('VOLT 0')
+            self.instrumento.write('CURR 0')
             set_curr = self.instrumento.query('CURR?')
             set_volt = self.instrumento.query('VOLT?')
             self.instrumento.write('OUTP ON')
             time.sleep(1)
 
+            self.instrumento.write(f'CURR {corrente_limite}')
+            
             for i in count(0):
                 inicio = time.perf_counter()
         
@@ -138,7 +140,7 @@ class Fonte:
         # Arredonda por segurança de display/comando
                 atual = round(atual, 4)
 
-                if atual >= tensao_maxima and atual >= 5.0:
+                if atual > tensao_maxima or atual > 5.0:
                     print(f"Limite {tensao_maxima}V atingido. Encerrando rampagem.")
                     break
 
@@ -147,7 +149,6 @@ class Fonte:
                 comando_tensao = f'VOLT {atual}' # controle Tensão
                 print(f"Tensão atual: {atual}V")
 
-                self.instrumento.write(f'CURR {corrente_limite}')
                 self.instrumento.write(comando_tensao)
 
                 time.sleep(ton)  # Tempo ON
@@ -162,11 +163,12 @@ class Fonte:
                 print(f"Tempo do ciclo: {tempo_ciclo:.4f} segundos\n")
 
                 # APLICAR ZERO (DESLIGA)
-                self.instrumento.write('VOLT 0.01')
-                self.instrumento.write('CURR 0.01')
+                self.instrumento.write('VOLT 0')
                 # hardware.set_current(0)     <--- SEU COMANDO AQUI
                 
                 time.sleep(toff) # Tempo OFF
+                
+            self.instrumento.write('CURR 0')
 
 
 
