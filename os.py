@@ -28,7 +28,7 @@ try:
     time.sleep(1)  # Espera física para encher a memória
     scope.write(':STOP')  # Para captura
     scope.query('*OPC?')  # Espera confirmação de parada
-   
+
 
 finally:
     if scope:
