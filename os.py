@@ -1,37 +1,61 @@
 import pyvisa
-import csv
 import time
+import csv
 
-
-# 1. Configurar o Gerenciador de Recursos
+# 1. Configurações Iniciais
 rm = pyvisa.ResourceManager()
 ip_yokogawa = "192.168.1.131"  # Seu IP
 endereco = f"TCPIP::{ip_yokogawa}::INSTR"
+nome_arquivo_csv = "medicao_1s.csv"
 
-scope = None # Inicializa variável para segurança no finally
+scope = None 
 
 try:
     print(f"Tentando conectar a: {endereco}")
     scope = rm.open_resource(endereco)
-    scope.timeout = 30000  # 30 segundos
-    scope.clear()  # Limpa buffer
+    
+    # Aumentamos o timeout para dar tempo de baixar os dados se a amostragem for alta
+    scope.timeout = 30000  
+    scope.clear()
+    
     print(f"Conectado: {scope.query('*IDN?').strip()}")
+    time.sleep(1)
 
-    # Medição
-    scope.write(':COMMunicate:HEADer OFF')  # Desliga cabeçalhos
-    scope.write(':STOP')  # Garante que está parado
-    scope.query('*OPC?')  # Espera confirmação de parada
-    scope.write(':WAVeform:TRACe 9')  # Canal 9
-    time.sleep(1)  # Pequena pausa para garantir comando processado
-    scope.write(':START')  # Inicia captura
-    scope.query('*OPC?')  # Espera confirmação de início
-    time.sleep(1)  # Espera física para encher a memória
-    scope.write(':STOP')  # Para captura
-    scope.query('*OPC?')  # Espera confirmação de parada
+    # Prepara o equipamento
+    scope.write(':COMMunicate:HEADer OFF')
+    scope.query('*OPC?')
 
+    scope.write(':ACQuire:RLENgth 100')
+    scope.write(':TIMebase:SRATe 100')
+    scope.write(':TRIGger:MODE SINGle')  # Opcional, mas garante que só captura uma vez
+    
+    # Configura medição de 1 segundo (10 divisões de 0.1s)
+    scope.write(':TIMebase:TDIV 0.1')
+    scope.query('*OPC?')
 
+    scope.write(':STARt')
+    scope.query('*OPC?')
+    print("Iniciando aquisição de dados por 1 segundo...")
+
+    scope.write(':STOP')
+
+    scope.write(':COMMunicate:HEADer OFF')
+
+    scope.write(':FILE:DIRectory:DRIVe HD')
+    scope.write(':FILE:DIRectory:CDIRectory "Gabriel"')
+    scope.write(':FILE:SAVE:NAME "medicao_1s.csv"')
+    scope.write(':FILE:SAVE:BINary:EXECute')
+
+    scope.query('*OPC?')
+    
+    
+    
+
+except pyvisa.errors.VisaIOError as e:
+    print(f"Erro de comunicação VISA: {e}")
+except Exception as e:
+    print(f"Ocorreu um erro inesperado: {e}")
 finally:
-    if scope:
+    if scope is not None:
         scope.close()
-        print("Conexão fechada.")
-    rm.close()
+        print("Conexão encerrada de forma segura.")
