@@ -25,12 +25,12 @@ try:
     scope.write(':COMMunicate:HEADer OFF')
     scope.query('*OPC?')
 
-    scope.write(':ACQuire:RLENgth 100')
-    scope.write(':TIMebase:SRATe 100')
+    scope.write(':ACQuire:RLENgth 1000') # Define o comprimento do registro (número de pontos)
+    scope.write(':TIMebase:SRATe 1000') # Define a taxa de amostragem (1000 amostras por segundo)
     scope.write(':TRIGger:MODE SINGle')  # Opcional, mas garante que só captura uma vez
     
     # Configura medição de 1 segundo (10 divisões de 0.1s)
-    scope.write(':TIMebase:TDIV 0.1')
+    scope.write(':TIMebase:TDIV 0.001')
     scope.query('*OPC?')
 
     scope.write(':STARt')
@@ -43,8 +43,12 @@ try:
 
     scope.write(':FILE:DIRectory:DRIVe HD')
     scope.write(':FILE:DIRectory:CDIRectory "Gabriel"')
-    scope.write(':FILE:SAVE:NAME "medicao_1s.csv"')
-    scope.write(':FILE:SAVE:BINary:EXECute')
+    scope.write(':FILE:SAVE:ASCii:EXTension CSV')
+    scope.write(':FILE:SAVE:ASCii:TINFormation ON')
+# 2. (Opcional) Inclui os dados de tempo no arquivo
+    scope.write(':FILE:SAVE:ASCii:TINFormation ON')
+    scope.write(':FILE:SAVE:NAME "teste_csv"')
+    scope.write(':FILE:SAVE:ASCii:EXECute')
 
     scope.query('*OPC?')
     
