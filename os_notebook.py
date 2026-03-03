@@ -1,12 +1,13 @@
 import pyvisa
 import pandas as pd
 import time
-import re # Importante adicionar o módulo de expressões regulares
+import re 
+import os # Necessário para criar a pasta e manipular os caminhos
 
 def capturar_para_pc(canal=1, nome_arquivo="medicao_direta.csv"):
     """
     Puxa os dados da memória do osciloscópio Yokogawa DL850E via rede 
-    e salva o CSV diretamente no disco do PC, ignorando caracteres especiais.
+    e salva o CSV na pasta especificada.
     """
     rm = pyvisa.ResourceManager()
     ip_yokogawa = "192.168.1.131" 
@@ -34,20 +35,14 @@ def capturar_para_pc(canal=1, nome_arquivo="medicao_direta.csv"):
         x_start = -(trig_pos_points * x_incr)
         
         # 4. Solicita os dados brutos de tensão (Eixo Y)
-        # EM VEZ DE QUERY, SEPARAMOS EM WRITE E READ_RAW:
         scope.write(':WAVeform:SEND?')
         
-        # Lê os bytes crus, burlando a falha do PyVISA com caracteres estranhos
         dados_brutos = scope.read_raw()
-        
-        # Decodifica ignorando os bytes ruins (como o 0xb4)
         dados_texto = dados_brutos.decode('ascii', errors='ignore')
         
-        # Quebra nas vírgulas
         pedacos = dados_texto.strip().split(',')
         valores_y = []
         
-        # Usa Regex para garantir que só pegamos os números, ignorando letras anexadas
         for pedaco in pedacos:
             try:
                 if pedaco.strip(): 
@@ -60,14 +55,26 @@ def capturar_para_pc(canal=1, nome_arquivo="medicao_direta.csv"):
         # 5. Reconstrói matematicamente o eixo do tempo
         valores_x = [x_start + (i * x_incr) for i in range(len(valores_y))]
         
-        # 6. Salva no notebook usando Pandas
+        # ==========================================================
+        # 6. Prepara o caminho exato fornecido
+        # Usamos o 'r' na frente da string para que o Python entenda as barras (\) corretamente
+        # ==========================================================
+        pasta_destino = r"C:\Users\nitee\Desktop\GaN-CRIO\Teste"
+        
+        # Cria a pasta caso ela ainda não exista no seu computador
+        os.makedirs(pasta_destino, exist_ok=True)
+        
+        # Junta o caminho da pasta com o nome do arquivo (ex: medicao_direta.csv)
+        caminho_completo = os.path.join(pasta_destino, nome_arquivo)
+        
+        # 7. Salva usando Pandas no caminho completo
         df = pd.DataFrame({
             'Tempo (s)': valores_x,
             'Tensao (V)': valores_y
         })
         
-        df.to_csv(nome_arquivo, index=False)
-        print(f"Sucesso! {len(valores_y)} pontos salvos em: {nome_arquivo}")
+        df.to_csv(caminho_completo, index=False)
+        print(f"Sucesso! {len(valores_y)} pontos salvos em: {caminho_completo}")
 
     except Exception as e:
         print(f"Erro na captura: {e}")
