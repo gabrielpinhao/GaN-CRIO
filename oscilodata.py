@@ -46,7 +46,8 @@ def calcular_dc(df,
 def plot_osciloscopio(df):
     # Plotando o gráfico
     plt.figure(figsize=(10,5))
-    plt.plot(df[df.columns[0]], df[df.columns[1]])
+    #plt.plot(df[df.columns[0]], df[df.columns[1]])
+    plt.plot(df[df.columns[0]], df[df.columns[2]])
 
     plt.xlabel(df.columns[0])
     plt.ylabel(df.columns[1])
@@ -55,9 +56,8 @@ def plot_osciloscopio(df):
 
     plt.show()
 
-file = r'C:\Users\nitee\Desktop\GaN-CRIO\GaN-CRIO\medicao_direta.csv'
+file = r'medicao_direta.csv'
 df = pd.read_csv(file)
 
-print(df.head())
 plot_osciloscopio(df)
-print(calcular_dc(df))
+#print(f'Valor DC: {calcular_dc(df):.4f}')
