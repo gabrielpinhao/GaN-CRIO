@@ -19,19 +19,19 @@ def capturar_para_pc(canal=1, nome_arquivo="medicao_direta.csv"):
         scope.timeout = 60000  # Timeout alto para transferências ASCII longas
         
         # 1. Garante que o equipamento não envie cabeçalhos nas respostas
-        scope.write(':COMMunicate:HEADer OFF') 
+        scope.write(':COMMunicate:HEADer OFF')
         
         print(f"Transferindo dados do canal {canal}...")
         
         # 2. Seleciona o canal e o formato de transmissão
         scope.write(f':WAVeform:TRACe {canal}')
-        scope.write(':WAVeform:FORMat ASCii') 
+        scope.write(':WAVeform:FORMat ASCii')
         
         # 3. Coleta parâmetros reais do Yokogawa para reconstruir o Eixo X (Tempo)
         sample_rate = float(scope.query(':WAVeform:SRATe?'))
         x_incr = 1.0 / sample_rate
         
-        trig_pos_points = int(scope.query(':WAVeform:TRIGger?')) 
+        trig_pos_points = int(scope.query(':WAVeform:TRIGger?'))
         x_start = -(trig_pos_points * x_incr)
         
         # 4. Solicita os dados brutos de tensão (Eixo Y)
@@ -68,10 +68,7 @@ def capturar_para_pc(canal=1, nome_arquivo="medicao_direta.csv"):
         caminho_completo = os.path.join(pasta_destino, nome_arquivo)
         
         # 7. Salva usando Pandas no caminho completo
-        df = pd.DataFrame({
-            'Tempo (s)': valores_x,
-            'Tensao (V)': valores_y
-        })
+        df = pd.DataFrame({'Tempo (s)': valores_x, 'Tensao (V)': valores_y})
         
         df.to_csv(caminho_completo, index=False)
         print(f"Sucesso! {len(valores_y)} pontos salvos em: {caminho_completo}")
