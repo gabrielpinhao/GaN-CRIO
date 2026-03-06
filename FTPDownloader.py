@@ -22,21 +22,38 @@ class FTPDownloader:
         self.ftp = FTP(self.host)
         self.ftp.login(user=self.user, passwd=self.password)
 
-    def download_file(self, file_name, test_name, remote_folder, local_folder):
+    def download_latest_file(self, test_name, remote_folder, local_folder):
         """
-        Baixa um arquivo específico do osciloscópio para o caminho local.
+        Baixa o arquivo mais recente do osciloscópio para o caminho local.
         Parâmetros:
-        - file_name: Nome do arquivo a ser baixado
         - test_name: Nome do teste para organizar a pasta local
-        - remote_folder: Pasta no osciloscópio onde o arquivo está localizado
+        - remote_folder: Pasta no osciloscópio onde os arquivos estão
         - local_folder: Caminho local onde o arquivo será salvo
         """
 
-        local_path = f"{local_folder}/{test_name}/{file_name}"
+        # Ir para a pasta remota
         self.ftp.cwd(remote_folder)
 
+        # Listar arquivos no diretório remoto
+        files = self.ftp.nlst()  # retorna lista de arquivos
+        if test_name:
+            files = [f for f in files if f.startswith(test_name)]
+
+        if not files:
+            raise FileNotFoundError("Nenhum arquivo encontrado no diretório remoto com o prefixo especificado.")
+
+        # Pegar o arquivo mais recente (normalmente o último em ordem alfabética: TESTE0000, TESTE0001...)
+        latest_file = sorted(files)[-1]
+
+        # Caminho completo para salvar localmente
+        local_path = f"{local_folder}/{test_name}/{latest_file}"
+
+        # Baixar arquivo
         with open(local_path, "wb") as f:
-            self.ftp.retrbinary(f"RETR {file_name}", f.write)
+            self.ftp.retrbinary(f"RETR {latest_file}", f.write)
+
+        print(f"Arquivo {latest_file} baixado para {local_path}")
+        return local_path
 
     def close(self):
         """Encerra a conexão FTP de forma segura."""

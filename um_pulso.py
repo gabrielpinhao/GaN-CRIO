@@ -1,6 +1,9 @@
 import pyvisa
 import time
-from FTPDownloader import FTPDownloader
+from FTPDownloader import *
+
+# --- NOME DIFERENTE PARA CADA ENSAIO, PARA EVITAR SOBRESCRITA DE ARQUIVOS
+test_name = "CARUSO_NOVO" 
 
 # --- Configuração da Fonte de Corrente ---
 corrente_limite = 250
@@ -36,15 +39,13 @@ except ValueError:
     exit()
 
 # --- Configuração do Servidor ---
-file_name = "CARUSO_CSV0000.csv"
-test_name = "caruso_test"
-
 remote_folder = "/HD-0/Gabriel"
 local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"
 
 try:
     downloader = FTPDownloader()
     downloader.connect()
+    create_local_folder(local_folder, test_name)
 except Exception as e:
     print(f"Erro ao conectar via FTP: {e}")
     exit()
@@ -86,14 +87,14 @@ try:
 
     scope.write(':FILE:SAVE:ASCii:EXTension CSV')
     scope.write(':FILE:SAVE:ASCii:TINFormation ON')
-    scope.write(':FILE:SAVE:NAME "caruso_csv"')
+    scope.write(f':FILE:SAVE:NAME "{test_name}"')
 
     scope.query('*OPC?')
 
     scope.write(':FILE:SAVE:ASCii:EXECute')
     scope.query('*OPC?')  # aguarda gravação completa
 
-    downloader.download_file(file_name, test_name, remote_folder, local_folder)
+    downloader.download_latest_file(test_name, remote_folder, local_folder)
 
     end_time = time.time()  # marca o tempo de fim
 
@@ -105,7 +106,7 @@ except KeyboardInterrupt: # Cancela o codigo com Ctrl+C
 except Exception as e:
     print(f"\nERROR: {e}")
 
-finally: # 2. Zera a fonte e desconecta instrumentos
+finally: # Zera a fonte, desconecta instrumentos e encerra conexões
         instrumento.write('OUTP OFF')
         instrumento.write('VOLT 0')
         instrumento.write('CURR 0')
