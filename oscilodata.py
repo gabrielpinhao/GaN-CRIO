@@ -56,21 +56,45 @@ def calcular_dc(df,
     return ret_v, ret_i
 
 def plot_osciloscopio(df):
+    """
+    Plotar os dados do osciloscópio e mostrar o valor DC estimado.
+
+    Parâmetro:
+    - df : DataFrame com tempo, tensão e corrente
+    """
+    
     v_dc, i_dc = calcular_dc(df)
 
-    plt.figure(figsize=(10,5))
-    plt.plot(df[df.columns[0]], df[df.columns[1]], c='red', label='Tensão (V)')
-    plt.plot(df[df.columns[0]], df[df.columns[2]], c='blue', label='Corrente (A)')
+    fig, ax1 = plt.subplots(figsize=(8,5))
 
-    plt.xlabel(df.columns[0])
-    plt.ylabel(df.columns[1])
-    plt.title(f"Valor DC estimado: V = {v_dc:.4f} V, I = {i_dc:.4f} A")
-    plt.grid(True)
-    plt.legend()
+    # Tensão (eixo esquerdo)
+    line1, = ax1.plot(df[df.columns[0]]*1000, df[df.columns[1]],
+                      color='red', label='Voltage [V]')
+    ax1.set_xlabel('Time [ms]')
+    ax1.set_ylabel('Voltage [V]', color='black')
+    ax1.tick_params(axis='y', labelcolor='black')
+
+    # Segundo eixo
+    ax2 = ax1.twinx()
+
+    # Corrente (eixo direito)
+    line2, = ax2.plot(df[df.columns[0]]*1000, df[df.columns[2]],
+                      color='blue', label='Current [A]')
+    ax2.set_ylabel('Current [A]', color='black')
+    ax2.tick_params(axis='y', labelcolor='black')
+
+    plt.title(f"Estimated DC Levels: {v_dc:.4f} V and {i_dc:.4f} A")
+
+    # Combinar legendas
+    lines = [line1, line2]
+    labels = [l.get_label() for l in lines]
+    ax1.legend(lines, labels, loc='upper right')
+
+    ax1.grid(True)
 
     plt.show()
 
-file = r'medicao_direta.csv'
+file = r'medicao_teste.csv'
 df = pd.read_csv(file)
 
 #print(df.head())
