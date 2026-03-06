@@ -1,6 +1,8 @@
 import pyvisa
 import time
 
+
+
 class YokogawaDL850:
     def __init__(self, ip_address, timeout=60000): # Timeout aumentado para operações de disco
         """
@@ -14,44 +16,46 @@ class YokogawaDL850:
 
     def conectar(self):
         """Estabelece a conexão VISA com o Yokogawa."""
-        print(f"Tentando conectar a: {self.endereco}")
+        print(f"Trying to connect to: {self.endereco}")
         self.scope = self.rm.open_resource(self.endereco)
         self.scope.timeout = self.timeout
         self.scope.clear()
         
         # Identifica o equipamento
         idn = self.scope.query('*IDN?').strip()
-        print(f"Conectado: {idn}")
+        print(f"Connected to: {idn}")
 
         # Desliga os cabeçalhos das respostas para facilitar o processamento de dados [1]
         self.scope.write(':COMMunicate:HEADer OFF')
-        self.scope.query('*OPC?') 
+        self.scope.query('*OPC?')
 
-    def configurar_aquisicao(self, record_length=1000, sample_rate=1000, time_div=0.1):
+    def configurar_aquisicao(self, record_length=1000, sample_rate=1000, time_div=0.1, trigger="AUTO"):
         """Configura os parâmetros de tempo e amostragem."""
         print("Configurando parâmetros de aquisição...")
         # Nota: Record Length deve ser um valor permitido (ex: 1000, 2500, 5000...) [2]
         self.scope.write(f':ACQuire:RLENgth {record_length}')
         self.scope.write(f':TIMebase:SRATe {sample_rate}')
-        self.scope.write(':TRIGger:MODE SINGle') # Modo Single garante uma captura completa [3]
+        self.scope.write(f":TRIGger:MODE {trigger}")
         self.scope.write(f':TIMebase:TDIV {time_div}')
         self.scope.query('*OPC?')
 
-    def iniciar_medicao(self):
+    def measure_start(self):
         """Inicia a aquisição e aguarda o término real pelo registro de status."""
-        print("Iniciando aquisição de dados...")
         self.scope.write(':STARt') # [4]
         
         # Sincronização Robusta: Em vez de time.sleep, verificamos o bit de "Capture"
         # Bit 0 do Condition Register indica se a aquisição está em progresso [5, 6]
         capturando = True
         while capturando:
-            status = int(self.scope.query(':STATus:CONDition?'))
-            if not (status & 1): # Se o Bit 0 for 0, a captura terminou
-                capturando = False
-            time.sleep(0.1) # Evita sobrecarregar a rede
+             status = int(self.scope.query(':STATus:CONDition?'))
+             if not (status & 1): # Se o Bit 0 for 0, a captura terminou
+                 capturando = False
+             time.sleep(0.1) # Evita sobrecarregar a rede
+
+    def measure_stop(self):
+        """Inicia a aquisição e aguarda o término real pelo registro de status."""
+        self.scope.write(':STOp') # [4]
             
-        print("Aquisição concluída.")
 
     def salvar_csv(self, drive="HD", diretorio="Gabriel", nome_arquivo="teste_csv"):
         """Salva os dados internamente no HD do Yokogawa no formato CSV."""
@@ -96,8 +100,39 @@ if __name__ == "__main__":
         # Chama os métodos na ordem necessária
         osciloscopio.conectar()
         osciloscopio.configurar_aquisicao(record_length=1000, sample_rate=1000, time_div=0.001)
-        osciloscopio.iniciar_medicao()
+        osciloscopio.measure_start()
         osciloscopio.salvar_csv(nome_arquivo="medicao_1s")
+
+
+        #tirei aplicção de corrente
+        instrumento.write(f'CURR {corrente_limite}')
+
+        print(f"Aplicando tensão crescente com limite de {amplitude}V...")
+        time.sleep(2)  # Pequena pausa para garantir que a fonte esteja pronta
+        osciloscopio.measure_start()  # Inicia a captura no osciloscópio
+        instrumento.write(f'VOLT {amplitude}')
+        
+
+        time.sleep(ton)  # Tempo ON
+
+
+    # PULSO (ZERO)
+        print("Zerando...")
+
+
+
+         # APLICAR ZERO (DESLIGA)
+        instrumento.write('VOLT 0')
+        scope_pulso.parar_aquisicao()
+    # hardware.set_current(0)     <--- SEU COMANDO AQUI
+        
+        time.sleep(toff) # Tempo OFF
+        scope_pulso.salvar_csv(nome_arquivo="pulso_simples")
+
+
+
+
+        instrumento.write('CURR 0')
 
     except pyvisa.errors.VisaIOError as e:
         print(f"Erro de comunicação VISA: {e}")

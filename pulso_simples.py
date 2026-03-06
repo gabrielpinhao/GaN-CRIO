@@ -3,8 +3,6 @@ import pyvisa
 import time
 from osciloscopio import YokogawaDL850
 
-
-
 rm = pyvisa.ResourceManager()
 print(rm.list_resources())
 
@@ -26,59 +24,37 @@ time.sleep(1)
 
 # Entradas
 try:
-    valor_partida = 0
-    #corrente_limite = float(input("Digite a corrente limite (A): "))
-    #valor_maxima = float(input("Digite a tensao máxima (V): "))
-    #acrescimo = float(input("Digite o acréscimo (V): "))
-    #ton = float(input("Digite o tempo ON (s): "))
-    #toff = float(input("Digite o tempo OFF (s): "))
-
     corrente_limite = 150
     ton = 0.02
     toff = 1.78
     amplitude = 0.2
 
+    instrumento.write(f'CURR {corrente_limite}')
+    print(f"Current limit of {corrente_limite} A.")
+    time.sleep(1)# Pequena pausa para garantir que a fonte esteja pronta
+
 except ValueError:
-    print("Erro: Digite apenas números.")
+    print("INPUT ERROR.")
     exit()
 
-print("--- INICIANDO TESTE COM FOR INFINITO ---")
-
 try:
-    #tirei aplicção de corrente
-    instrumento.write(f'CURR {corrente_limite}')
+    print(f"Measurement Started!")
 
-    print(f"Aplicando tensão crescente com limite de {amplitude}V...")
-    time.sleep(2)  # Pequena pausa para garantir que a fonte esteja pronta
-    comando_tensao = f'VOLT {amplitude}' # controle TENSão
-    print(f"Tensão atual: {amplitude}V")
-
-    instrumento.write(comando_tensao)
-        
-
+    instrumento.write(f'VOLT {amplitude}')
+    print(f"Applying {amplitude}V.")
+    
     time.sleep(ton)  # Tempo ON
 
-
-    # PULSO (ZERO)
-    print("Zerando...")
-
-
-
-         # APLICAR ZERO (DESLIGA)
     instrumento.write('VOLT 0')
-    # hardware.set_current(0)     <--- SEU COMANDO AQUI
-        
-    time.sleep(toff/2) # Tempo OFF
+    print(f"Applying 0V.")
 
+  
+    time.sleep(toff) # Tempo OFF
 
+    print(f"Measurement Stopped!")  # Para a captura no osciloscópio
 
-
+    #scope_pulso.salvar_csv(nome_arquivo="pulso_simples")
     instrumento.write('CURR 0')
-
-
-
-
-
 
 except KeyboardInterrupt: # Cancela o codigo com Ctrl+C
     print("\nPARADA MANUAL!")
@@ -86,13 +62,12 @@ except KeyboardInterrupt: # Cancela o codigo com Ctrl+C
 except Exception as e:
     print(f"\nERRO: {e}")
 
-finally:
-
-    # 2. Zera a fonte e desconecta instrumentos
+finally: # 2. Zera a fonte e desconecta instrumentos
     print("\n--- SAFETY: Zerando fonte ---")
     instrumento.write('OUTP OFF')
     print("Zerar valores no instrumento...")
     instrumento.write('VOLT 0')
     instrumento.write('CURR 0')
+    #scope_pulso.desconectar()
     instrumento.close()
     print("Fim.")
