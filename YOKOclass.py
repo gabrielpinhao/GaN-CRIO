@@ -1,8 +1,6 @@
 import pyvisa
 import time
 
-
-
 class YokogawaDL850:
     def __init__(self, ip_address, timeout=60000): # Timeout aumentado para operações de disco
         """

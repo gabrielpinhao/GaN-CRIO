@@ -3,7 +3,7 @@ import pandas as pd
 import time
 import re 
 import os # Necessário para criar a pasta e manipular os caminhos
-from oscilodata import *
+from DCestimator import *
 
 def capturar_para_pc(canal=1, nome_arquivo="medicao_direta.csv"):
     """

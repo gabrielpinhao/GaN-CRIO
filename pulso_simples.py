@@ -1,7 +1,7 @@
 import csv
 import pyvisa
 import time
-from osciloscopio import YokogawaDL850
+from YOKOclass import YokogawaDL850
 
 rm = pyvisa.ResourceManager()
 print(rm.list_resources())

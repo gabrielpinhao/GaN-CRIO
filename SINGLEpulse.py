@@ -1,6 +1,7 @@
 import pyvisa
 import time
 from FTPDownloader import *
+from DCestimator import *
 
 # --- NOME DIFERENTE PARA CADA ENSAIO, PARA EVITAR SOBRESCRITA DE ARQUIVOS
 test_name = "CARUSO_NOVO" 
@@ -94,10 +95,12 @@ try:
     scope.write(':FILE:SAVE:ASCii:EXECute')
     scope.query('*OPC?')  # aguarda gravação completa
 
-    downloader.download_latest_file(test_name, remote_folder, local_folder)
+    latest_file = downloader.download_latest_file(test_name, remote_folder, local_folder)
+
+    df = single_csv_to_df(f"{local_folder}/{test_name}/{latest_file}")
+    time_plot(df)
 
     end_time = time.time()  # marca o tempo de fim
-
     if (end_time - start_time) < toff: time.sleep(toff - (end_time - start_time))
 
 except KeyboardInterrupt: # Cancela o codigo com Ctrl+C

@@ -53,7 +53,8 @@ class FTPDownloader:
             self.ftp.retrbinary(f"RETR {latest_file}", f.write)
 
         print(f"Arquivo {latest_file} baixado para {local_path}")
-        return local_path
+        
+        return latest_file
 
     def close(self):
         """Encerra a conexão FTP de forma segura."""
