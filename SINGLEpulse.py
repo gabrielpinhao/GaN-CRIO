@@ -69,6 +69,7 @@ scope.write(f':TIMebase:TDIV 0.02')
 scope.write(":CHAN7:DISP ON")
 scope.write(":CHAN8:DISP ON")
 
+
 # --- Iniciar aquisição ---
 try:
     scope.write(":START")
@@ -95,10 +96,10 @@ try:
     scope.write(':FILE:SAVE:ASCii:EXECute')
     scope.query('*OPC?')  # aguarda gravação completa
 
-    latest_file = downloader.download_latest_file(test_name, remote_folder, local_folder)
+    # latest_file = downloader.download_latest_file(test_name, remote_folder, local_folder)
 
-    df = single_csv_to_df(f"{local_folder}/{test_name}/{latest_file}")
-    time_plot(df)
+    # df = single_csv_to_df(f"{local_folder}/{test_name}/{latest_file}")
+    # time_plot(df)
 
     end_time = time.time()  # marca o tempo de fim
     if (end_time - start_time) < toff: time.sleep(toff - (end_time - start_time))
@@ -110,9 +111,19 @@ except Exception as e:
     print(f"\nERROR: {e}")
 
 finally: # Zera a fonte, desconecta instrumentos e encerra conexões
+        
         instrumento.write('OUTP OFF')
         instrumento.write('VOLT 0')
         instrumento.write('CURR 0')
         instrumento.close()
         downloader.close()
+
+        v_list, i_list = post_test_trace(local_folder, test_name)
+
+        plt.plot(i_list, v_list, marker='o')
+        plt.xlabel("Current [A]")
+        plt.ylabel("Voltage [V]")
+        plt.grid(True)
+        plt.show()
+
         print("THE END.")
