@@ -39,7 +39,7 @@ def time_plot(df):
 
     v_dc, i_dc = dc_estimator(df)
 
-    fig, ax1 = plt.subplots(figsize=(15,5))
+    fig, ax1 = plt.subplots(figsize=(7,5))
 
     line1, = ax1.plot(df['Time'], df['Voltage'],
                       color='tomato', label='Voltage [V]')
