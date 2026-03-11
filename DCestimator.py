@@ -44,8 +44,6 @@ def time_plot(df):
     line1, = ax1.plot(df['Time'], df['Voltage'],
                       color='tomato', label='Voltage [V]')
     
-    
-
     ax1.set_xlabel('Time [ms]')
     ax1.set_ylabel('Voltage [V]', color='black')
     ax1.tick_params(axis='y', labelcolor='black')
@@ -131,7 +129,6 @@ def main():
     plt.xlabel("Current [A]")
     plt.ylabel("Voltage [V]")
     plt.grid(True)
-
     plt.show()
 
 if __name__ == "__main__":
