@@ -1,25 +1,18 @@
 from HIKARI_DC import HikariHF3205P  
 import time
 
-psu = HikariHF3205P()
+psu = HikariHF3205P(resource="ASRL5::INSTR")
 
 try:
     print("Fonte conectada:", psu.idn())
 
-    print("Configurando tensão para 10 V...")
     psu.set_voltage(10.00)
-
-    print("Configurando corrente para 1 A...")
     psu.set_current(1.000)
 
     time.sleep(0.2)
 
-    print("Ligando saída...")
     psu.output_on()
-
-    print("Fonte configurada com sucesso.")
-
-    time.sleep(5)
+    time.sleep(0.05)
 
 finally:
     if psu is not None:
