@@ -34,7 +34,7 @@ scope.write(":TIMebase:TDIV 5US")
 # Com 100 MS/s e 5us/div (total de 50us na tela), 5000 pontos capturam exatamente a tela cheia.
 scope.write(":ACQuire:RLENgth 5000") 
 
-scope.write(":CHAN8:DISP ON") 
+scope.write(":CHAN7:DISP ON") 
 scope.query('*OPC?')
 
 # --- Iniciar aquisição ---
