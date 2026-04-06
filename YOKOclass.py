@@ -36,27 +36,22 @@ class YokogawaDL850:
     def configurar_aquisicao(self):
         """Configura os parâmetros de tempo e amostragem."""
         print("Configurando parâmetros de aquisição...")
-        self.scope.write(":TRIGger:MODE SINGle") 
-# 2. Taxa de Amostragem: 100 Mega Samples por segundo (100MA ou 100E+06)
-        self.scope.write(":TIMebase:SRATe 100MA") 
-
-        # 3. Tempo por Divisão: 5 microsegundos (5US ou 5E-06)
-        self.scope.write(":TIMebase:TDIV 5US") 
-
-        # 4. Record Length: 
-        # Com 100 MS/s e 5us/div (total de 50us na tela), 5000 pontos capturam exatamente a tela cheia.
-        self.scope.write(":ACQuire:RLENgth 5000") 
-
+        self.scope.write(":TRIGger:MODE SINGle") # 1. Modo de Trigger: Single (captura única)
+        self.scope.write(":TIMebase:SRATe 50MA") # 2. Taxa de Amostragem: 100 Mega Samples por segundo (100MA ou 100E+06)
+        self.scope.write(":TIMebase:TDIV 20US") # 3. Tempo por Divisão: 5 microsegundos (5US ou 5E-06)
+        self.scope.write(":ACQuire:RLENgth 5000") # 4. Record Length: Com 100 MS/s e 20us/div (total de 50us na tela), 20000 pontos capturam exatamente a tela cheia.
         self.scope.write(":CHAN7:DISP ON") 
+        self.scope.write(":CHAN8:DISP ON")
+        self.scope.write(":CHAN15:DISP ON") 
         self.scope.query('*OPC?')
         
-
     def measure_start(self):
+        self.scope.write(":STARt")
+
+
+    def measure_save(self, test_name):
 
         try:
-            print("Aguardando trigger (Modo Single)...")
-            self.scope.write(":STARt") 
-
             # Sincronização: Aguarda o Bit 0 (Capture) do registro de condição se tornar 0
             # Isso garante que o equipamento só avance quando a captura Single terminar
             capturando = True
@@ -66,21 +61,18 @@ class YokogawaDL850:
                     capturando = False
                 time.sleep(0.01)
 
-            print("Captura finalizada. Salvando arquivo...")
-
             #--- Configuração de arquivo CSV no instrumento ---
             self.scope.write(':FILE:DIRectory:DRIVe HD') 
             self.scope.write(':FILE:DIRectory:CDIRectory "Gabriel"') 
 
             self.scope.write(':FILE:SAVE:ASCii:EXTension CSV') 
             self.scope.write(':FILE:SAVE:ASCii:TINFormation ON') 
-            self.scope.write(f':FILE:SAVE:NAME scope_micro_100MS') 
+            self.scope.write(f':FILE:SAVE:NAME {test_name}') 
 
             # Comando crucial para executar o salvamento em ASCII/CSV
             self.scope.write(':FILE:SAVE:ASCii:EXECute') 
             self.scope.query('*OPC?')  # Aguarda a gravação física no HD terminar
 
-            print(f"Sucesso! Arquivo scope_micro_100MS.csv' salvo no HD do osciloscópio.")
         except KeyboardInterrupt:
             print("\nPARADA MANUAL!")
             self.scope.write(":STOP") 

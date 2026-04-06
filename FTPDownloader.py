@@ -51,25 +51,23 @@ class FTPDownloader:
         # Baixar arquivo
         with open(local_path, "wb") as f:
             self.ftp.retrbinary(f"RETR {latest_file}", f.write)
-
-        print(f"Arquivo {latest_file} baixado para {local_path}")
-        
-        return latest_file
+                    
+        return local_path, latest_file
 
     def close(self):
         """Encerra a conexão FTP de forma segura."""
         if self.ftp:
             self.ftp.quit()
 
-def create_local_folder(local_folder, test_name):
-    """Cria a pasta local para salvar os arquivos, se ela não existir."""
-    os.makedirs(f"{local_folder}/{test_name}", exist_ok=True)
+    def create_local_folder(local_folder, test_name):
+        """Cria a pasta local para salvar os arquivos, se ela não existir."""
+        os.makedirs(f"{local_folder}/{test_name}", exist_ok=True)
 
 def main():
     """Função principal para executar o download do arquivo CSV do osciloscópio."""
 
-    file_name = "CARUSO_CSV0000.csv"
-    test_name = "caruso_test"
+    file_name = "OUTPUT_TEST0000.csv"
+    test_name = "OUTPUT_TEST"
 
     remote_folder = "/HD-0/Gabriel"
     local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"

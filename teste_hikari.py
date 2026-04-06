@@ -3,7 +3,7 @@ from YOKOclass import YokogawaDL850
 import time
 
 psu = HikariHF3205P(resource="ASRL5::INSTR")
-scope_yoko = YokogawaDL850()
+scope_yoko = YokogawaDL850(ip_address="TCPIP0::192.168.1.131::INSTR")
 
 try:
     print("Fonte conectada:", psu.idn())
