@@ -1,5 +1,3 @@
-##Teste de configuração de 2 fontes Hikari
-
 import os
 import time
 import pyvisa
@@ -9,20 +7,26 @@ from YOKOclass import YokogawaDL850
 from FTPDownloader import FTPDownloader
 from DATAclass import DATAclass
 
+start = time.time()
+
 # --- Configurações Iniciais ---
+
+test_name = "MOS1_TRANSFER"
+
+max_gate_volt = 10.0
+gate_step = 0.05
+
+ds_volt = 2.5
+
+# --- Configurações Constantes ---
 
 remote_folder = "/HD-0/Gabriel"
 local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"
-test_name = "MOS6_OUTPUT"
 
-gate_volt = 4.5
-gate_curr = 1.0
-gate_error_threshold = 3 #% de erro permitido de Vg
-
-init_ds_volt = 0.0
-max_ds_volt = 2.5
-ds_step = 0.05
+init_gate_volt = 0.0
 ds_curr = 5.0
+gate_curr = 1.0
+error_threshold = 1 #% de erro permitido de Vg e Vds
 
 def send_pulse(gate_volt, ds_volt, test_name):
 
@@ -67,12 +71,13 @@ try:
     scope_yoko.conectar()
     print("Osciloscópio conectado:", scope_yoko.scope.query('*IDN?').strip())
     scope_yoko.configurar_aquisicao()
+
 except Exception as e:
     print(f"Erro ao conectar ao osciloscópio: {e}")
     exit()
 
 for resource in rm.list_resources():
-    try: ## Identifica o instrumento pelo IDN e instancia a fonte correspondente.
+    try:
         inst = rm.open_resource(resource)
         idn = inst.query('*IDN?').strip()
         print(f"{resource}: SN:{idn[-8:]}")
@@ -87,16 +92,18 @@ for resource in rm.list_resources():
     except:
         print(f"{resource}: Não é um instrumento VISA ou não respondeu ao *IDN?")
     finally: 
-        gate_source.set_current(gate_curr)
-        drain_source.set_current(ds_curr)
+        
         time.sleep(0.5)
+
+gate_source.set_current(gate_curr)
+drain_source.set_current(ds_curr)
 
 # ----- Verificação Inicial de Vg ----
 
-vg_target = gate_volt
+vg_target = 5.0
 
 try:
-    send_pulse(gate_volt, max_ds_volt/2, test_name)
+    send_pulse(vg_target, ds_volt, test_name)
 
 except pyvisa.VisaIOError:
     print("Falha no Teste Inicial de Vg")
@@ -115,20 +122,22 @@ finally:
     df = data.processar_dados(last_file_addr)
     vg, vds, ids = data.dc_estimator(df)
 
-    gate_volt = 2*gate_volt - vg
+    vg_error = vg / vg_target
+    vds_error = vds / ds_volt
 
-    print(f"Target Vg: {vg_target:.2f} V, Applied Vg: {gate_volt:.2f} V, Vg Adjust: {(vg_target - gate_volt):.2f} V")
+    print(f"Target Vg: {vg_target:.2f} V, Measured Vg: {vg:.2f} V, Vg Scale: {(vg_error)*100:.2f} %")
+    print(f"Target Vds: {ds_volt:.2f} V, Measured Vds: {vds:.2f} V, Vds Scale: {(vds_error)*100:.2f} %")
 
     clear_capacitor()
 
 # ----- Loop Principal de Ensaio ----
 
 df_output = []
-ds_volt = init_ds_volt
+gate_volt = init_gate_volt
 
-while ds_volt < max_ds_volt:
+while gate_volt < max_gate_volt:
     try:
-        send_pulse(gate_volt, ds_volt, test_name)
+        send_pulse(gate_volt/vg_error, ds_volt/vds_error, test_name)
 
     except pyvisa.VisaIOError:
         print("Falha na Conexao")
@@ -146,12 +155,13 @@ while ds_volt < max_ds_volt:
 
         df = data.processar_dados(last_file_addr)
         vg, vds, ids = data.dc_estimator(df)
-        print(f"Vg: {vg:.2f} V, Vds: {vds:.2f} V, Ids: {ids:.2f} A")
-
-        if (abs(vg - vg_target) / vg_target) * 100 > gate_error_threshold:
-            print(f"High Vg Error. Vg: {vg:.2f} V, Target: {vg_target:.2f} V")
+        
+        if (abs(vg - vg_target) / vg_target) * 100 > error_threshold or (abs(vds - ds_volt) / ds_volt) * 100 > error_threshold:
+            print(f"High Error. Vg: {vg:.2f} V, Target: {vg_target:.2f} V, Vds: {vds:.2f} V, Target: {ds_volt:.2f} V")
         
         else:
+            print(f"Vg: {vg:.2f} V, Vds: {vds:.2f} V, Ids: {ids:.2f} A")
+
             df_output.append({
             'Arquivo': latest_file_name,
             'Vg': vg,
@@ -159,7 +169,7 @@ while ds_volt < max_ds_volt:
             'Ids': ids
             })
 
-            ds_volt += ds_step
+            gate_volt += gate_step
 
 clear_capacitor()
 
@@ -167,3 +177,6 @@ df_final = pd.DataFrame(df_output)
 df_final.to_csv(f"{local_folder}/{test_name}/{test_name}_ALL.csv", index=False)
 
 data.plot_output_characteristic(local_folder, test_name)
+
+end = time.time()
+print(f"Tempo Total: {(end - start)/60:.2f} minutos")
