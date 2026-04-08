@@ -165,7 +165,7 @@ class DATAclass:
 # ==========================
 
 local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"
-test_name = "MOS4_OUTPUT"
+test_name = "MOS6_OUTPUT"
 
 if __name__ == "__main__":
     data = DATAclass()
