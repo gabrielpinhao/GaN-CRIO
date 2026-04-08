@@ -15,13 +15,42 @@ remote_folder = "/HD-0/Gabriel"
 local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"
 test_name = "MOS6_OUTPUT"
 
-tensao_gate = 4.5
-corrente_gate = 1.0
+gate_volt = 4.5
+gate_curr = 1.0
+gate_error_threshold = 3 #% de erro permitido de Vg
 
-tensao_ds_init = 0.0
-tensao_ds_max = 2.5
-tensao_step = 0.05
-corrente_ds = 5.0
+init_ds_volt = 0.0
+max_ds_volt = 2.5
+ds_step = 0.05
+ds_curr = 5.0
+
+def send_pulse(gate_volt, ds_volt, test_name):
+
+    scope_yoko.measure_start()
+
+    drain_source.set_voltage(ds_volt)
+    gate_source.set_voltage(gate_volt)
+    
+    time.sleep(0.5)
+
+    drain_source.output_on()
+    time.sleep(5)
+    drain_source.output_off()
+    time.sleep(0.5)
+    gate_source.output_on()
+    time.sleep(0.08)
+    gate_source.output_off()
+
+    scope_yoko.measure_save(test_name)
+
+def clear_capacitor():
+
+    gate_source.set_voltage(5.0)
+    drain_source.output_off()
+    time.sleep(0.5)
+    gate_source.output_on()
+    time.sleep(3)
+    gate_source.output_off()
 
 # --- Preparar Pasta e Instrumentos ---
 
@@ -58,33 +87,48 @@ for resource in rm.list_resources():
     except:
         print(f"{resource}: Não é um instrumento VISA ou não respondeu ao *IDN?")
     finally: 
+        gate_source.set_current(gate_curr)
+        drain_source.set_current(ds_curr)
         time.sleep(0.5)
 
+# ----- Verificação Inicial de Vg ----
+
+vg_target = gate_volt
+
+try:
+    send_pulse(gate_volt, max_ds_volt/2, test_name)
+
+except pyvisa.VisaIOError:
+    print("Falha no Teste Inicial de Vg")
+    drain_source.output_off()
+    gate_source.output_off()
+    exit()
+
+finally:
+    drain_source.output_off()
+    gate_source.output_off()
+
+    ftp.connect()
+    last_file_addr, latest_file_name = ftp.download_latest_file(test_name, remote_folder, local_folder)
+    ftp.close()
+
+    df = data.processar_dados(last_file_addr)
+    vg, vds, ids = data.dc_estimator(df)
+
+    gate_volt = 2*gate_volt - vg
+
+    print(f"Target Vg: {vg_target:.2f} V, Applied Vg: {gate_volt:.2f} V, Vg Adjust: {(vg_target - gate_volt):.2f} V")
+
+    clear_capacitor()
+
+# ----- Loop Principal de Ensaio ----
+
 df_output = []
-tensao_ds = tensao_ds_init
-i = 0
+ds_volt = init_ds_volt
 
-while tensao_ds < tensao_ds_max:
+while ds_volt < max_ds_volt:
     try:
-        
-        drain_source.set_voltage(tensao_ds)
-        drain_source.set_current(corrente_ds)
-
-        gate_source.set_voltage(tensao_gate)
-        gate_source.set_current(corrente_gate)
-
-        scope_yoko.measure_start()
-        time.sleep(1)
-
-        drain_source.output_on()
-        time.sleep(5)
-        drain_source.output_off()
-        time.sleep(0.2)
-        gate_source.output_on()
-        time.sleep(0.08)
-        gate_source.output_off()
-
-        scope_yoko.measure_save(test_name)
+        send_pulse(gate_volt, ds_volt, test_name)
 
     except pyvisa.VisaIOError:
         print("Falha na Conexao")
@@ -103,21 +147,21 @@ while tensao_ds < tensao_ds_max:
         df = data.processar_dados(last_file_addr)
         vg, vds, ids = data.dc_estimator(df)
         print(f"Vg: {vg:.2f} V, Vds: {vds:.2f} V, Ids: {ids:.2f} A")
-        #data.plot_separated(df)
 
-        df_output.append({
-        'Arquivo': latest_file_name,
-        'Vg': vg,
-        'Vds': vds,
-        'Ids': ids
-        })
+        if (abs(vg - vg_target) / vg_target) * 100 > gate_error_threshold:
+            print(f"High Vg Error. Vg: {vg:.2f} V, Target: {vg_target:.2f} V")
         
-        tensao_ds += tensao_step
-        i += 1
+        else:
+            df_output.append({
+            'Arquivo': latest_file_name,
+            'Vg': vg,
+            'Vds': vds,
+            'Ids': ids
+            })
 
-gate_source.output_on()
-time.sleep(2)
-gate_source.output_off()
+            ds_volt += ds_step
+
+clear_capacitor()
 
 df_final = pd.DataFrame(df_output)
 df_final.to_csv(f"{local_folder}/{test_name}/{test_name}_ALL.csv", index=False)
