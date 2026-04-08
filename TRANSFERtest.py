@@ -11,22 +11,22 @@ start = time.time()
 
 # --- Configurações Iniciais ---
 
-test_name = "MOS1_TRANSFER"
+test_name = "TRANSFER3"
 
-max_gate_volt = 10.0
+max_gate_volt = 4.0
 gate_step = 0.05
 
-ds_volt = 2.5
+ds_volt = 10
 
 # --- Configurações Constantes ---
 
 remote_folder = "/HD-0/Gabriel"
 local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"
 
-init_gate_volt = 0.0
+init_gate_volt = 3.0
 ds_curr = 5.0
 gate_curr = 1.0
-error_threshold = 1 #% de erro permitido de Vg e Vds
+error_threshold = 0.3 #% de erro permitido de Vg e Vds
 
 def send_pulse(gate_volt, ds_volt, test_name):
 
@@ -48,8 +48,14 @@ def send_pulse(gate_volt, ds_volt, test_name):
     scope_yoko.measure_save(test_name)
 
 def clear_capacitor():
+    drain_source.output_off()
+    gate_source.output_off()
 
     gate_source.set_voltage(5.0)
+    drain_source.set_voltage(2.0)
+
+    drain_source.output_on()
+    time.sleep(3)
     drain_source.output_off()
     time.sleep(0.5)
     gate_source.output_on()
@@ -100,10 +106,12 @@ drain_source.set_current(ds_curr)
 
 # ----- Verificação Inicial de Vg ----
 
-vg_target = 5.0
+vg_target = 4.0
+ds_target = 3.0
 
 try:
-    send_pulse(vg_target, ds_volt, test_name)
+    print(f"Initial Vg Calibration: Target Vg = {vg_target} V, Target Vds = {ds_target} V")
+    send_pulse(vg_target, ds_target, test_name)
 
 except pyvisa.VisaIOError:
     print("Falha no Teste Inicial de Vg")
@@ -122,11 +130,11 @@ finally:
     df = data.processar_dados(last_file_addr)
     vg, vds, ids = data.dc_estimator(df)
 
-    vg_error = vg / vg_target
-    vds_error = vds / ds_volt
+    vg_error = vg_target - vg
+    vds_error = vds / ds_target
 
-    print(f"Target Vg: {vg_target:.2f} V, Measured Vg: {vg:.2f} V, Vg Scale: {(vg_error)*100:.2f} %")
-    print(f"Target Vds: {ds_volt:.2f} V, Measured Vds: {vds:.2f} V, Vds Scale: {(vds_error)*100:.2f} %")
+    print(f"Target Vg: {vg_target:.2f} V, Measured Vg: {vg:.2f} V, Vg Error: {(vg_error):.2f} V")
+    print(f"Target Vds: {ds_target:.2f} V, Measured Vds: {vds:.2f} V, Vds Scale: {(vds_error)*100:.2f} %")
 
     clear_capacitor()
 
@@ -134,10 +142,15 @@ finally:
 
 df_output = []
 gate_volt = init_gate_volt
+ds_target = ds_volt
+ds_integral = 0.0
+
+print(f"------- Starting Main Loop -------")
+print(f"Max Gate Voltage = {max_gate_volt} V, Gate Step = {gate_step} V, Vds = {ds_target} V")
 
 while gate_volt < max_gate_volt:
     try:
-        send_pulse(gate_volt/vg_error, ds_volt/vds_error, test_name)
+        send_pulse((gate_volt + vg_error), ds_volt, test_name)
 
     except pyvisa.VisaIOError:
         print("Falha na Conexao")
@@ -156,9 +169,14 @@ while gate_volt < max_gate_volt:
         df = data.processar_dados(last_file_addr)
         vg, vds, ids = data.dc_estimator(df)
         
-        if (abs(vg - vg_target) / vg_target) * 100 > error_threshold or (abs(vds - ds_volt) / ds_volt) * 100 > error_threshold:
-            print(f"High Error. Vg: {vg:.2f} V, Target: {vg_target:.2f} V, Vds: {vds:.2f} V, Target: {ds_volt:.2f} V")
-        
+        if (abs(vds - ds_target) / ds_target) * 100 > error_threshold:
+            print(f"High Error. Vds: {vds:.2f} V, Target: {ds_target:.2f} V")
+
+            if abs(vds - ds_target) < 2.0:
+                ds_error = ds_target - vds
+                ds_integral += ds_error
+                ds_volt = ds_target + 0.8*ds_error + 0.2*ds_integral
+
         else:
             print(f"Vg: {vg:.2f} V, Vds: {vds:.2f} V, Ids: {ids:.2f} A")
 
@@ -176,7 +194,7 @@ clear_capacitor()
 df_final = pd.DataFrame(df_output)
 df_final.to_csv(f"{local_folder}/{test_name}/{test_name}_ALL.csv", index=False)
 
-data.plot_output_characteristic(local_folder, test_name)
+data.plot_output_characteristic(local_folder, test_name, x_axis='Vg')
 
 end = time.time()
 print(f"Tempo Total: {(end - start)/60:.2f} minutos")

@@ -116,7 +116,7 @@ class DATAclass:
         
         return ret_vg, ret_vds, ret_ids
     
-    def plot_output_characteristic(self, local_folder, test_name):
+    def plot_output_characteristic(self, local_folder, test_name, x_axis = 'Vds'):
         # 1. Construir o caminho da pasta e procurar o arquivo que termina com 'ALL.csv'
         target_dir = os.path.join(local_folder, test_name)
         
@@ -135,26 +135,24 @@ class DATAclass:
         csv_path = os.path.join(target_dir, files[0])
         print(f"Lendo resumo: {csv_path}")
 
-        # 2. Ler o CSV
-        # Como o arquivo tem cabeçalho (Arquivo, Vg, Vds, Ids), o pandas lê automaticamente
         df_all = pd.read_csv(csv_path)
 
-        # 3. Plotar Ids (Y) por Vds (X)
         plt.figure(figsize=(10, 6))
-        
-        # Plotamos como pontos e linha para ver a curva característica
-        plt.plot(df_all['Vds'], df_all['Ids'], 'o-', label=test_name, markersize=4)
+        plt.plot(df_all[x_axis], df_all['Ids'], 'o', label=test_name, markersize=4)
 
         plt.title(f'Curva de Saída (Output Characteristic) - {test_name}')
-        plt.xlabel('Vds (V)')
+        plt.xlabel(f'{x_axis} (V)')
         plt.ylabel('Ids (A)')
         plt.grid(True, linestyle=':', alpha=0.6)
         plt.legend()
         
-        # 4. Estética opcional: Mostrar o valor de Vg médio se for constante
-        vg_medio = df_all['Vg'].mean()
-        plt.annotate(f'Vg ≈ {vg_medio:.2f}V', 
-                    xy=(df_all['Vds'].iloc[-1], df_all['Ids'].iloc[-1]),
+        if x_axis == 'Vg':
+            media = 'Vds'
+        else: media = 'Vg'
+
+        v_medio = df_all[media].mean()
+        plt.annotate(f'{media} ≈ {v_medio:.2f}V', 
+                    xy=(df_all[x_axis].iloc[-1], df_all['Ids'].iloc[-1]),
                     xytext=(10, 0), textcoords='offset points')
 
         plt.tight_layout()
