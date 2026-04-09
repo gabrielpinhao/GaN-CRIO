@@ -2,23 +2,20 @@ import os
 import time
 import pyvisa
 import pandas as pd
-from ClassHIKARI import HikariHF3205P
-from ClassYOKO import YokogawaDL850  
-from ClassFTP import FTPDownloader
-from ClassDATA import DATAclass
+from ClassTEST import Characterization
 
 start = time.time()
 
 # --- Configurações Iniciais ---
 
-test_name = "MOS8_OUTPUT"
+test_name = "MOS10_OUTPUT"
 
 gate_volt = 3.0
 
-max_ds_volt = 2.5
-ds_step = 0.05
+max_ds_volt = 1.0
+ds_step = 0.5
 
-# --- Configurações Constantes ---
+# --- Configurações Normalmente Constantes ---
 
 remote_folder = "/HD-0/Gabriel"
 local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"
@@ -26,107 +23,38 @@ local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"
 init_ds_volt = 0.0
 ds_curr = 5.0
 gate_curr = 1.0
-gate_error_threshold = 1 #% de erro permitido de Vg
+gate_error_threshold = 0.6 #% de erro permitido de Vg
 
-def send_pulse(gate_volt, ds_volt, test_name):
+test = Characterization(local_folder, test_name)
+test.ftp.connect()
 
-    scope_yoko.measure_start()
-
-    drain_source.set_voltage(ds_volt)
-    gate_source.set_voltage(gate_volt)
-    
-    time.sleep(0.5)
-
-    drain_source.output_on()
-    time.sleep(5)
-    drain_source.output_off()
-    time.sleep(0.5)
-    gate_source.output_on()
-    time.sleep(0.08)
-    gate_source.output_off()
-
-    scope_yoko.measure_save(test_name)
-
-def clear_capacitor():
-
-    gate_source.set_voltage(5.0)
-    drain_source.output_off()
-    time.sleep(0.5)
-    gate_source.output_on()
-    time.sleep(3)
-    gate_source.output_off()
-
-# --- Preparar Pasta e Instrumentos ---
-
-data = DATAclass()
-ftp = FTPDownloader()
-os.makedirs(f"{local_folder}/{test_name}", exist_ok=True)
-
-rm = pyvisa.ResourceManager()
-print(rm.list_resources())
-
-scope_yoko = YokogawaDL850("TCPIP0::192.168.1.131::INSTR")
-
-try:
-    scope_yoko.conectar()
-    print("Osciloscópio conectado:", scope_yoko.scope.query('*IDN?').strip())
-    scope_yoko.configurar_aquisicao()
-
-except Exception as e:
-    print(f"Erro ao conectar ao osciloscópio: {e}")
-    exit()
-
-for resource in rm.list_resources():
-    try:
-        inst = rm.open_resource(resource)
-        idn = inst.query('*IDN?').strip()
-        print(f"{resource}: SN:{idn[-8:]}")
-
-        if int(idn[-8:]) == 49152063:
-            gate_source = HikariHF3205P(resource=resource)
-            print("Fonte conectada:", gate_source.idn())
-
-        elif int(idn[-8:]) == 9437206:
-            drain_source = HikariHF3205P(resource=resource)
-            print("Fonte conectada:", drain_source.idn())
-    except:
-        print(f"{resource}: Não é um instrumento VISA ou não respondeu ao *IDN?")
-    finally: 
-        
-        time.sleep(0.5)
-
-gate_source.set_current(gate_curr)
-drain_source.set_current(ds_curr)
+test.current_set(gate_curr, ds_curr)
 
 # ----- Verificação Inicial de Vg ----
 
 vg_target = gate_volt
 
 try:
-    send_pulse(gate_volt, max_ds_volt/2, test_name)
+    
+    test.send_pulse(gate_volt, max_ds_volt/2, test_name)
+    
+    last_file_addr, latest_file_name = test.ftp.download_latest_file(test_name, remote_folder, local_folder)
 
-except pyvisa.VisaIOError:
-    print("Falha no Teste Inicial de Vg")
-    drain_source.output_off()
-    gate_source.output_off()
-    exit()
-
-finally:
-    drain_source.output_off()
-    gate_source.output_off()
-
-    ftp.connect()
-    last_file_addr, latest_file_name = ftp.download_latest_file(test_name, remote_folder, local_folder)
-    ftp.close()
-
-    df = data.processar_dados(last_file_addr)
-    vg, vds, ids = data.dc_estimator(df)
+    df = test.data.processar_dados(last_file_addr)
+    vg, vds, ids = test.data.dc_estimator(df)
 
     gate_volt = 2*gate_volt - vg
 
-    print(f"Target Vg: {vg_target:.2f} V, Applied Vg: {gate_volt:.2f} V, Vg Adjust: {(vg_target - gate_volt):.2f} V")
+    print(f"Target Vg: {vg_target:.2f} V, Applied Vg: {vg:.2f} V, Vg Adjust: {(vg_target - gate_volt):.2f} V")
 
-    clear_capacitor()
+except pyvisa.VisaIOError:
+    print("Falha no Teste Inicial de Vg")
+    test.drain_source.output_off()
+    test.gate_source.output_off()
+    exit()
+
+finally: 
+    test.clear_capacitor()
 
 # ----- Loop Principal de Ensaio ----
 
@@ -135,25 +63,27 @@ ds_volt = init_ds_volt
 
 while ds_volt < max_ds_volt:
     try:
-        send_pulse(gate_volt, ds_volt, test_name)
+        test.send_pulse(gate_volt, ds_volt, test_name)
 
     except pyvisa.VisaIOError:
         print("Falha na Conexao")
-        drain_source.output_off()
-        gate_source.output_off()
+        test.drain_source.output_off()
+        test.gate_source.output_off()
+        exit()
+
+    except KeyboardInterrupt:
+        print("\nMANUAL STOP!")
+        test.drain_source.output_off()
+        test.gate_source.output_off()
         exit()
 
     finally:
-        drain_source.output_off()
-        gate_source.output_off()
-
-        ftp.connect()
-        last_file_addr, latest_file_name = ftp.download_latest_file(test_name, remote_folder, local_folder)
-        ftp.close()
-
-        df = data.processar_dados(last_file_addr)
-        vg, vds, ids = data.dc_estimator(df)
         
+        last_file_addr, latest_file_name = test.ftp.download_latest_file(test_name, remote_folder, local_folder)
+
+        df = test.data.processar_dados(last_file_addr)
+        vg, vds, ids = test.data.dc_estimator(df)
+    
         if (abs(vg - vg_target) / vg_target) * 100 > gate_error_threshold:
             print(f"High Vg Error. Vg: {vg:.2f} V, Target: {vg_target:.2f} V")
         
@@ -169,14 +99,16 @@ while ds_volt < max_ds_volt:
 
             ds_volt += ds_step
 
-clear_capacitor()
+test.ftp.close()
+
+test.clear_capacitor()
+
+end = time.time()
+print(f"Tempo Total: {(end - start)/60:.2f} minutos")
 
 df_final = pd.DataFrame(df_output)
 file_final = f"{local_folder}/{test_name}/{test_name}_ALL.csv"
 
 df_final.to_csv(file_final, index=False)
 
-data.actual_plot(pd.read_csv(file_final), test='Output')
-
-end = time.time()
-print(f"Tempo Total: {(end - start)/60:.2f} minutos")
+test.data.actual_plot(pd.read_csv(file_final), test_name, test='Output')

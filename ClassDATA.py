@@ -145,7 +145,7 @@ class DATAclass:
         
         return ret_vg, ret_vds, ret_ids
     
-    def actual_plot(self, df_all, test='Output'):
+    def actual_plot(self, df_all, test_name, test='Output'):
         """
         Plot the output or transfer characteristic curve
         from a consolidated DataFrame.
@@ -261,12 +261,13 @@ class DATAclass:
 # ==========================
 # EXECUÇÃO TESTE
 # ==========================
-data = DATAclass()
 
-local_folder = "Ensaios"
-test_name = "TRANSFER3"
+if __name__ == "__main__":
+    data = DATAclass()
 
-file_final = f"{local_folder}/{test_name}/{test_name}_ALL.csv"
+    local_folder = "Ensaios"
+    test_name = "MOS9_OUTPUT"
 
-data.actual_plot(pd.read_csv(file_final), test='Transfer')
-    
+    file_final = f"{local_folder}/{test_name}/{test_name}_ALL.csv"
+
+    data.actual_plot(pd.read_csv(file_final), test_name, test='Output')

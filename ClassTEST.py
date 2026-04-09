@@ -13,51 +13,48 @@ class Characterization:
         self.data = DATAclass()
         self.ftp = FTPDownloader()
         self.rm = pyvisa.ResourceManager()
-        self.scope_yoko = YokogawaDL850(yoko_address)
+        self.yoko = YokogawaDL850(yoko_address)
+        self.resources = self.rm.list_resources()
+        self.local_folder = local_folder
+        self.timeout = 60000
 
         os.makedirs(f"{local_folder}/{test_name}", exist_ok=True)
-        print(self.rm.list_resources())
 
         try:
-            if self.scope_yoko.scope.query('*IDN?').strip():
-                print("Osciloscópio já conectado:", self.scope_yoko.scope.query('*IDN?').strip())
-            else:
-                self.scope_yoko.conectar()
-                self.scope_yoko.configurar_aquisicao()
-                print("Osciloscópio conectado:", self.scope_yoko.scope.query('*IDN?').strip())
+            self.yoko.conectar()
+            self.yoko.configurar_aquisicao()
 
         except Exception as e:
             print(f"Erro ao conectar ao osciloscópio: {e}")
-            exit()
 
-        for resource in self.rm.list_resources():
+        for r in self.resources:
             try:
-                inst = self.rm.open_resource(resource)
+                inst = self.rm.open_resource(r)
                 idn = inst.query('*IDN?').strip()
-                print(f"{resource}: SN:{idn[-8:]}")
+                print(f"{r}: SN:{idn[-8:]}")
 
                 if int(idn[-8:]) == 49152063:
-                    gate_source = HikariHF3205P(resource=resource)
-                    print("Fonte conectada:", gate_source.idn())
+                    self.gate_source = HikariHF3205P(resource=r)
+                    print("Fonte conectada:", self.gate_source.idn())
 
                 elif int(idn[-8:]) == 9437206:
-                    drain_source = HikariHF3205P(resource=resource)
-                    print("Fonte conectada:", drain_source.idn())
-                    
-            except:
-                print(f"{resource}: Não é um instrumento VISA ou não respondeu ao *IDN?")
-            finally:   
-                time.sleep(0.5)
+                    self.drain_source = HikariHF3205P(resource=r)
+                    print("Fonte conectada:", self.drain_source.idn())
 
-    def send_pulse(self, gate_volt, ds_volt, test_name):
-
-        self.scope_yoko.measure_start()
-
-        self.drain_source.set_voltage(ds_volt)
-        self.gate_source.set_voltage(gate_volt)
-        
+            except Exception as e:
+                print(f"Error loading {r}: {e}")
+                
         time.sleep(0.5)
 
+    def send_pulse(self, gate_volt, ds_volt, test_name):
+        
+        self.yoko.measure_start()
+    
+        self.drain_source.set_voltage(ds_volt)
+        self.gate_source.set_voltage(gate_volt)
+      
+        time.sleep(0.5)
+      
         self.drain_source.output_on()
         time.sleep(5)
         self.drain_source.output_off()
@@ -65,14 +62,31 @@ class Characterization:
         self.gate_source.output_on()
         time.sleep(0.08)
         self.gate_source.output_off()
+      
+        self.yoko.measure_save(test_name)
 
-        self.scope_yoko.measure_save(test_name)
 
     def clear_capacitor(self):
 
-        self.gate_source.set_voltage(5.0)
+        print("Discharging Capacitor...")
+        self.gate_source.set_voltage(3.0)
+        self.drain_source.set_voltage(2.0)
         self.drain_source.output_off()
         time.sleep(0.5)
         self.gate_source.output_on()
-        time.sleep(3)
+        time.sleep(5)
         self.gate_source.output_off()
+
+    def current_set(self, gate_curr, ds_curr):
+        self.gate_source.set_current(gate_curr)
+        self.drain_source.set_current(ds_curr)
+    
+
+if __name__ == "__main__":
+    test_name = "MOS8_OUTPUT"
+    local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"
+
+    test = Characterization(local_folder, test_name)
+    test.send_pulse(gate_volt=5.0, ds_volt=2.0, test_name=test_name)
+    test.clear_capacitor()
+
