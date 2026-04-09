@@ -2,10 +2,10 @@ import os
 import time
 import pyvisa
 import pandas as pd
-from HIKARI_DC import HikariHF3205P
-from YOKOclass import YokogawaDL850  
-from FTPDownloader import FTPDownloader
-from DATAclass import DATAclass
+from ClassHIKARI import HikariHF3205P
+from ClassYOKO import YokogawaDL850  
+from ClassFTP import FTPDownloader
+from ClassDATA import DATAclass
 
 start = time.time()
 
@@ -192,9 +192,11 @@ while gate_volt < max_gate_volt:
 clear_capacitor()
 
 df_final = pd.DataFrame(df_output)
-df_final.to_csv(f"{local_folder}/{test_name}/{test_name}_ALL.csv", index=False)
+file_final = f"{local_folder}/{test_name}/{test_name}_ALL.csv"
 
-data.plot_output_characteristic(local_folder, test_name, x_axis='Vg')
+df_final.to_csv(file_final, index=False)
+
+data.actual_plot(pd.read_csv(file_final), test='Transfer')
 
 end = time.time()
 print(f"Tempo Total: {(end - start)/60:.2f} minutos")
