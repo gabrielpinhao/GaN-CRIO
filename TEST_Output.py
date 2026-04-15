@@ -8,12 +8,14 @@ start = time.time()
 
 # --- Configurações Iniciais ---
 
-test_name = "OUT_VG12_"
+#test_name = "MOS12_OUT"
+test_name = "OUT_VG2_"
 
-gate_volt = 12.0
+gate_volt = 2.5
 
-max_ds_volt = 4.0
+max_ds_volt = 10.0
 ds_step = 0.05
+ds_step_sat = 0.25
 
 # --- Configurações Normalmente Constantes ---
 
@@ -31,7 +33,7 @@ test.ftp.connect()
 test.current_set(gate_curr, ds_curr)
 
 vg_target = gate_volt
-init_gate_error = 0.65
+init_gate_error = 0.56
 gate_volt = vg_target + init_gate_error
 good_vg = gate_volt
 
@@ -67,10 +69,10 @@ while ds_volt < max_ds_volt:
         if (abs(vg - vg_target) / vg_target) * 100 > gate_error_threshold:
             print(f"High Vg Error. Vg: {vg:.2f} V, Target: {vg_target:.2f} V")
 
-            if abs(vg - vg_target) < vg_target*0.02:
+            if abs(vg - vg_target) < vg_target*0.05:
                 gate_error = vg_target - vg
                 gate_integral += gate_error
-                gate_volt = vg_target + init_gate_error + 0.8*gate_error + 0.2*gate_integral
+                gate_volt = vg_target + init_gate_error + 0.25*gate_error + 0.05*gate_integral
             else:
                 gate_volt = good_vg
                 gate_integral = 0.0
@@ -85,6 +87,7 @@ while ds_volt < max_ds_volt:
             'Ids': ids
             })
 
+            if ds_volt > 3.0: ds_step = ds_step_sat
             ds_volt += ds_step
             good_vg = gate_volt
 
