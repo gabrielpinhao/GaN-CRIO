@@ -10,6 +10,7 @@ from ClassDATA import DATAclass
 class Characterization:
 
     def __init__(self, local_folder, test_name, yoko_address="TCPIP0::192.168.1.131::INSTR"):
+        
         self.data = DATAclass()
         self.ftp = FTPDownloader()
         self.rm = pyvisa.ResourceManager()
@@ -19,10 +20,12 @@ class Characterization:
         self.timeout = 60000
 
         os.makedirs(f"{local_folder}/{test_name}", exist_ok=True)
+        
 
         try:
+            print("ENTROU NO TRY")
             self.yoko.conectar()
-            self.yoko.configurar_aquisicao()
+            self.yoko.configurar_aquisicao(test_name)
 
         except Exception as e:
             print(f"Erro ao conectar ao osciloscópio: {e}")
@@ -46,7 +49,7 @@ class Characterization:
                 
         time.sleep(0.5)
 
-    def send_pulse(self, gate_volt, ds_volt, test_name):
+    def send_pulse(self, gate_volt, ds_volt):
         
         self.yoko.measure_start()
     
@@ -63,18 +66,17 @@ class Characterization:
         time.sleep(0.08)
         self.gate_source.output_off()
       
-        self.yoko.measure_save(test_name)
+        self.yoko.measure_save()
 
 
     def clear_capacitor(self):
-
         print("Discharging Capacitor...")
-        self.gate_source.set_voltage(3.0)
+        self.gate_source.set_voltage(4.0)
         self.drain_source.set_voltage(2.0)
         self.drain_source.output_off()
         time.sleep(0.5)
         self.gate_source.output_on()
-        time.sleep(5)
+        time.sleep(10)
         self.gate_source.output_off()
 
     def current_set(self, gate_curr, ds_curr):

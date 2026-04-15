@@ -266,7 +266,7 @@ if __name__ == "__main__":
     data = DATAclass()
 
     local_folder = "Ensaios"
-    test_name = "MOS9_OUTPUT"
+    test_name = "OUT_VG4_"
 
     file_final = f"{local_folder}/{test_name}/{test_name}_ALL.csv"
 
