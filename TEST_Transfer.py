@@ -8,13 +8,14 @@ start = time.time()
 
 # --- Configurações Iniciais ---
 
-test_name = "TRANSFER3"
+test_name = "MOS_VDS10_"
+#test_name = "TRANSFER4"
 
-ds_volt = 10
+ds_volt = 15
 
-init_gate_volt = 3.0
-max_gate_volt = 4.0
-ds_step = 0.05
+init_gate_volt = 1.0
+max_gate_volt = 6.0
+gate_step = 0.10
 
 # --- Configurações Constantes ---
 
@@ -23,7 +24,7 @@ local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"
 
 ds_curr = 5.0
 gate_curr = 1.0
-error_threshold = 0.3
+error_threshold = 1.0
 
 test = Characterization(local_folder, test_name)
 test.ftp.connect()
@@ -69,7 +70,7 @@ while gate_volt < max_gate_volt + init_gate_error and ids < 130.0:
             if abs(vds - ds_target) < ds_target*0.05:
                 ds_error = ds_target - vds
                 ds_integral += ds_error
-                ds_volt = ds_target + 0.25*ds_error + 0.05*ds_integral
+                ds_volt = ds_target + 0.5*ds_error + 0.2*ds_integral
             else:
                 ds_volt = good_vds
                 ds_integral = 0.0
@@ -84,7 +85,7 @@ while gate_volt < max_gate_volt + init_gate_error and ids < 130.0:
             'Ids': ids
             })
 
-            ds_volt += ds_step
+            gate_volt += gate_step
             good_vds = ds_volt
 
 test.ftp.close()
