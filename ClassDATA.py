@@ -254,11 +254,7 @@ class DATAclass:
 
         df_final = pd.DataFrame(df_output)
 
-<<<<<<< HEAD
         self.actual_plot(df_final, test_name, test)
-=======
-        self.actual_plot(df_final, test_name, test='Transfer')
->>>>>>> 05f407322cf5247970afb3d802eadca4e9b6f920
         
         print(f"Arquivo: {file}, Vg: {vg:.2f} V, Vds: {vds:.2f} V, Ids: {ids:.2f} A")
 
@@ -270,17 +266,9 @@ if __name__ == "__main__":
     data = DATAclass()
 
     local_folder = "Ensaios"
-<<<<<<< HEAD
     test_name = "M2CT_VG08_"
 
     file_final = f"{local_folder}/{test_name}/{test_name}_ALL.csv"
 
     #data.actual_plot(pd.read_csv(file_final), test_name, test='Output')
     data.sweep_plot(local_folder, test_name, test='Output')
-=======
-    test_name = "MOS_VDS10_"
-
-    file_final = f"{local_folder}/{test_name}/{test_name}_ALL.csv"
-
-    data.sweep_plot(local_folder, test_name, test='Transfer')
->>>>>>> 05f407322cf5247970afb3d802eadca4e9b6f920
