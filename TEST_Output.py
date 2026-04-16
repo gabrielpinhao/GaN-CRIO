@@ -9,9 +9,9 @@ start = time.time()
 # --- Configurações Iniciais ---
 
 #test_name = "MOS12_OUT"
-test_name = "M2CT_VG10_"
+test_name = "M2CT_VG25_"
 
-gate_volt = 10.0
+gate_volt = 2.5
 
 max_ds_volt = 2
 ds_step = 0.05
