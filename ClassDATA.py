@@ -117,7 +117,7 @@ class DATAclass:
         """
 
         vg_max = df['Vg'].max()
-        threshold = vg_max * 0.5
+        threshold = vg_max * 0.75
 
         indices_pulso = df.index[df['Vg'] > threshold].tolist()
         
@@ -126,7 +126,7 @@ class DATAclass:
             return 0, 0, 0
 
         idx_final_pulso = indices_pulso[-1]
-        t_final_pulso = df.loc[idx_final_pulso, 'Time']
+        t_final_pulso = df.loc[idx_final_pulso, 'Time'] - 5
         
         # Definir a janela de medição (ex: 10us antes do final do pulso)
         t_inicio_janela = t_final_pulso - window_us

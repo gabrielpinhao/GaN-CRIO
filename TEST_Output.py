@@ -9,11 +9,11 @@ start = time.time()
 # --- Configurações Iniciais ---
 
 #test_name = "MOS12_OUT"
-test_name = "OUT_VG2_"
+test_name = "IGBT_VG13_"
 
-gate_volt = 2.5
+gate_volt = 13.0
 
-max_ds_volt = 10.0
+max_ds_volt = 4.0
 ds_step = 0.05
 ds_step_sat = 0.25
 
@@ -22,7 +22,7 @@ ds_step_sat = 0.25
 remote_folder = "/HD-0/Gabriel"
 local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"
 
-init_ds_volt = 0.0
+init_ds_volt = 1.0
 ds_curr = 5.0
 gate_curr = 1.0
 gate_error_threshold = 0.5 #% de erro permitido de Vg
@@ -33,7 +33,7 @@ test.ftp.connect()
 test.current_set(gate_curr, ds_curr)
 
 vg_target = gate_volt
-init_gate_error = 0.56
+init_gate_error = 0.61
 gate_volt = vg_target + init_gate_error
 good_vg = gate_volt
 
@@ -87,7 +87,7 @@ while ds_volt < max_ds_volt:
             'Ids': ids
             })
 
-            if ds_volt > 3.0: ds_step = ds_step_sat
+            if ds_volt > 5.0: ds_step = ds_step_sat
             ds_volt += ds_step
             good_vg = gate_volt
 
