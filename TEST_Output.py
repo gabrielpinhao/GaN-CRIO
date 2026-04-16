@@ -29,7 +29,6 @@ gate_error_threshold = 0.5 #% de erro permitido de Vg
 
 test = Characterization(local_folder, test_name)
 test.ftp.connect()
-
 test.current_set(gate_curr, ds_curr)
 
 vg_target = gate_volt
@@ -42,6 +41,8 @@ ds_volt = init_ds_volt
 gate_integral = 0.0
 
 test.clear_capacitor()
+
+print(f"----- Starting Output Test: {time.time()} -----")
 
 while ds_volt < max_ds_volt:
     try:

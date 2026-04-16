@@ -21,7 +21,6 @@ class Characterization:
 
         os.makedirs(f"{local_folder}/{test_name}", exist_ok=True)
         
-
         try:
             print("ENTROU NO TRY")
             self.yoko.conectar()
