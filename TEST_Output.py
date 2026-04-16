@@ -9,20 +9,20 @@ start = time.time()
 # --- Configurações Iniciais ---
 
 #test_name = "MOS12_OUT"
-test_name = "IGBT_VG13_"
+test_name = "M2CT_VG10_"
 
-gate_volt = 13.0
+gate_volt = 10.0
 
-max_ds_volt = 4.0
+max_ds_volt = 2
 ds_step = 0.05
-ds_step_sat = 0.25
+ds_step_sat = 0.15
 
 # --- Configurações Normalmente Constantes ---
 
 remote_folder = "/HD-0/Gabriel"
 local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"
 
-init_ds_volt = 1.0
+init_ds_volt = 0.0
 ds_curr = 5.0
 gate_curr = 1.0
 gate_error_threshold = 0.5 #% de erro permitido de Vg
@@ -88,7 +88,7 @@ while ds_volt < max_ds_volt:
             'Ids': ids
             })
 
-            if ds_volt > 5.0: ds_step = ds_step_sat
+            if ds_volt > 1.0: ds_step = ds_step_sat
             ds_volt += ds_step
             good_vg = gate_volt
 

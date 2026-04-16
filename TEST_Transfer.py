@@ -8,14 +8,14 @@ start = time.time()
 
 # --- Configurações Iniciais ---
 
-test_name = "MOS_VDS10_"
+test_name = "M2CT_VD25_"
 #test_name = "TRANSFER4"
 
-ds_volt = 15
+ds_volt = 25
 
 init_gate_volt = 1.0
-max_gate_volt = 6.0
-gate_step = 0.10
+max_gate_volt = 9.0
+gate_step = 0.05
 
 # --- Configurações Constantes ---
 
@@ -35,6 +35,7 @@ init_gate_error = 0.61
 df_transfer = []
 gate_volt = init_gate_volt + init_gate_error
 
+ds_volt = ds_volt + 0.07
 ds_target = ds_volt
 good_vds = ds_volt
 ds_integral = 0.0

@@ -254,7 +254,7 @@ class DATAclass:
 
         df_final = pd.DataFrame(df_output)
 
-        self.actual_plot(df_final, test='Transfer')
+        self.actual_plot(df_final, test_name, test)
         
         print(f"Arquivo: {file}, Vg: {vg:.2f} V, Vds: {vds:.2f} V, Ids: {ids:.2f} A")
 
@@ -266,8 +266,9 @@ if __name__ == "__main__":
     data = DATAclass()
 
     local_folder = "Ensaios"
-    test_name = "TRANSFER1"
+    test_name = "M2CT_VG08_"
 
     file_final = f"{local_folder}/{test_name}/{test_name}_ALL.csv"
 
-    data.actual_plot(pd.read_csv(file_final), test_name, test='Transfer')
+    #data.actual_plot(pd.read_csv(file_final), test_name, test='Output')
+    data.sweep_plot(local_folder, test_name, test='Output')
