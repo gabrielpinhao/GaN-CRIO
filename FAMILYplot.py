@@ -1,10 +1,9 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
-from ClassTEST import Characterization
 from ClassDATA import DATAclass
 
-def consolidar_dados(folder, prefix, output_file):
+def consolidar_dados_output(folder, prefix, output_file):
     """
     Lê arquivos CSV, ordena por Vg médio e consolida em um único DataFrame e arquivo CSV.
     """
@@ -37,14 +36,14 @@ def consolidar_dados(folder, prefix, output_file):
             # Merge externo para alinhar pontos de Vds
             df_consolidado = pd.merge(df_consolidado, df_data, on='Vds', how='outer')
 
-    # Ordenação final e salvamento
     df_consolidado = df_consolidado.sort_values(by='Vds').reset_index(drop=True)
     df_consolidado.to_csv(output_file, index=False)
     print(f"Dados consolidados com sucesso em: {output_file}")
     
     return df_consolidado
 
-def plotar_consolidado(caminho_arquivo, tipo_plot='linear', titulo='Curvas Características'):
+def plotar_consolidado_output(caminho_arquivo, tipo_plot='linear',
+                       titulo='Curvas Características', tipo_test='Output'):
     try:
         df = pd.read_csv(caminho_arquivo)
     except Exception as e:
@@ -78,13 +77,13 @@ def plotar_consolidado(caminho_arquivo, tipo_plot='linear', titulo='Curvas Carac
     plt.grid(True, which="both", ls="-", lw=0.5, alpha=0.7)
     plt.legend(loc='upper left', fontsize='x-small', ncol=1)
 
-    plt.xlim(0,4.5)  # Garantir que o eixo x comece em 0
-    plt.ylim(0,100)  # Garantir que o eixo y
+    #plt.xlim(0,4.5)  # Garantir que o eixo x comece em 0
+    #plt.ylim(0,100)  # Garantir que o eixo y
     
     plt.tight_layout()
     plt.show()
 
-def gerar_arquivo_all(test_name, local_folder= 'Ensaios'):
+def gerar_arquivo_all_output(test_name, local_folder= 'Ensaios'):
     """
     Gera o arquivo CSV_ALL para um teste específico.
     """
@@ -125,25 +124,101 @@ def gerar_arquivo_all(test_name, local_folder= 'Ensaios'):
             df_final.to_csv(file_final, index=False)
             print(f"Arquivo ALL.csv gerado para {test} em: {file_final}")
 
+def consolidar_dados_transfer(folder, prefix, output_file):
+    """
+    Lê arquivos CSV, ordena por Vds médio e consolida em um único DataFrame e arquivo CSV.
+    """
+    path = os.path.join(folder, prefix)
+    files = [f for f in os.listdir(path) if f.startswith(prefix) and not f.endswith('ALL.csv')]
+    data = DATAclass()  
+
+    #vd_target = float(prefix[7:9])
+    vd_target = 15
+    df_final = []
+
+    for file in files:
+        sample_path = os.path.join(path, file)
+        df = data.processar_dados(sample_path)
+        vg, vds, ids = data.dc_estimator(df)
+
+        if (abs(vds - vd_target) / vd_target) * 100 < 2:
+
+            df_final.append({
+                'Arquivo': file,
+                'Vg': vg,
+                'Vds': vds,
+                'Ids': ids
+            })
+
+    df_final = pd.DataFrame(df_final)
+    df_final = df_final.sort_values(by='Vg', ascending=True)
+    df_final = df_final.reset_index(drop=True)
+
+    file_final = f"{prefix}_final.csv"
+    df_final.to_csv(file_final, index=False)
+    print(f"Arquivo ALL.csv gerado em: {file_final}")      
+    
+    return df_final
+
+def plotar_consolidado_transfer(caminho_arquivo, tipo_plot='linear',
+                                titulo='Curvas Características'):
+    try:
+        df = pd.read_csv(caminho_arquivo)
+    except Exception as e:
+        print(f"Erro ao ler o arquivo para plotagem: {e}")
+        return
+
+    plt.figure(figsize=(5, 4))
+
+    plt.plot(df['Vg'], df['Ids'], lw=1.5, ls="-",
+                 marker='.', markersize=3)
+
+    if tipo_plot == 'log':
+        plt.yscale('log')
+    elif tipo_plot == 'loglog':
+        plt.yscale('log')
+        plt.xscale('log')
+
+    plt.title(titulo)
+    plt.xlabel('$V_{G}$, Gate-to-Source Voltage [V]')
+    plt.ylabel('$I_{D}$, Drain-to-Source Current [A]')
+    plt.grid(True, which="both", ls="-", lw=0.5, alpha=0.7)
+    plt.legend(loc='upper left', fontsize='x-small', ncol=1)
+
+    #plt.xlim(0,4.5)  # Garantir que o eixo x comece em 0
+    #plt.ylim(0,100)  # Garantir que o eixo y
+    
+    plt.tight_layout()
+    plt.show()
+
 ## ----- EXECUÇÃO DO PROCESSO ----- ##
 
 CAMINHO_PASTA = 'Ensaios'
 
 #PREFIXO_ARQUIVOS = 'OUT_VG' #Output MOSFET Room Temperature
 #PREFIXO_ARQUIVOS = 'M2CT_VG' #Output MOSFET Cryo Temperature
-PREFIXO_ARQUIVOS = 'IGBT_VG' #Output IGBT Room Temperature
+#PREFIXO_ARQUIVOS = 'IGBT_VG' #Output IGBT Room Temperature
+PREFIXO_ARQUIVOS = 'MOS_VDS10_' #Output IGBT Room Temperature
 
 ESTILO_PLOT = 'linear'
-TIPO_TESTE = 'Output'
+TIPO_TESTE = 'Transfer'
 
 ARQUIVO_SAIDA = f'{PREFIXO_ARQUIVOS}_final.csv'
 
-if not os.path.exists(ARQUIVO_SAIDA):
-    consolidar_dados(CAMINHO_PASTA, PREFIXO_ARQUIVOS, ARQUIVO_SAIDA) # 1. Consolidar
+if TIPO_TESTE == 'Output':
+    if not s.path.exists(ARQUIVO_SAIDA):
+        consolidar_dados_output(CAMINHO_PASTA, PREFIXO_ARQUIVOS, ARQUIVO_SAIDA) # 1. Consolidar
 
-if os.path.exists(ARQUIVO_SAIDA): # 2. Plotar
-    plotar_consolidado(ARQUIVO_SAIDA, 
-                       tipo_plot=ESTILO_PLOT,
-                       titulo=f'{TIPO_TESTE} Characteristics: IGBT @{'CT' if 'CT'in PREFIXO_ARQUIVOS else "RT"}')
+    if os.path.exists(ARQUIVO_SAIDA): # 2. Plotar
+        plotar_consolidado_output(ARQUIVO_SAIDA, tipo_plot=ESTILO_PLOT,
+                                titulo=f'{TIPO_TESTE} Characteristics: Si N-MOSFET @{'CT' if 'CT'in PREFIXO_ARQUIVOS else "RT"}')
+        
+elif TIPO_TESTE == 'Transfer':
+    if not os.path.exists(ARQUIVO_SAIDA):
+        consolidar_dados_transfer(CAMINHO_PASTA, PREFIXO_ARQUIVOS, ARQUIVO_SAIDA) # 1. Consolidar
 
-#gerar_arquivo_all(PREFIXO_ARQUIVOS) 
+    if os.path.exists(ARQUIVO_SAIDA):
+        plotar_consolidado_transfer(ARQUIVO_SAIDA, tipo_plot=ESTILO_PLOT,
+                                    titulo=f'{TIPO_TESTE} Characteristics: Si N-MOSFET @{"CT" if "CT"in PREFIXO_ARQUIVOS else "RT"}')
+
+#gerar_arquivo_all_output(PREFIXO_ARQUIVOS)
