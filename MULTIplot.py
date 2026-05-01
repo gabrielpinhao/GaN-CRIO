@@ -15,12 +15,13 @@ import numpy as np
 folder = 'Dados'
 
 files = [
-        "M2RT_VG_final.csv",
-        "MOSRT_VG_datasheet.csv"
+        "M2RT_VD10_final.csv", "M2CT_VD10_final.csv"
         ]
 
-#vgs = [2.5, 3, 4, 6, 8, 10, 12, 15] #Caso Output, colocar os Vgs desejados aqui para filtrar as colunas [10, 15, ...]
-vgs = [15]
+#Caso Output, colocar os Vgs desejados aqui para filtrar as colunas [10, 15, ...]
+vgs = [3, 4, 10, 15]
+#vgs = [2.5, 3, 4, 6, 8, 10, 12, 15] 
+#vgs = [15]
 
 # ========== PLOTAGEM ==========
 
@@ -29,13 +30,22 @@ test = 'Transfer' if 'VD' in files[0] else 'Output'
 if test == 'Transfer':
 
     plt.figure(figsize=(5, 4))
+    rt = ct = 0
 
     for f in files:
         df = pd.read_csv(f"{folder}/{f}")
         df = df.sort_values(by='Vg').reset_index(drop=True)
-        
+
         f_label = '298 K' if 'RT' in f else '77 K'
-        f_color = 'red' if 'RT' in f else 'blue'
+
+        n_curves = len(files)
+
+        if 'RT' in f:
+            colors = plt.cm.Reds(np.linspace(0.5, 0.9, n_curves))
+        elif 'CT' in f:
+            colors = plt.cm.Blues(np.linspace(0.5, 0.9, n_curves))
+        
+        f_color = rt if 'RT' in f else ct
         f_adj = 0 if 'RT' in f else 0.9
         
         x = df['Vg']
@@ -43,7 +53,7 @@ if test == 'Transfer':
         
         # --- LÓGICA DE AJUSTE LINEAR (REGRESSÃO) ---
 
-        mask = (x >= 3.5) & (x <= 4)
+        mask = (y >= 30) & (y <= 120)
         x_fit = x[mask]
         y_fit = y[mask]
         
@@ -53,34 +63,44 @@ if test == 'Transfer':
             a, b = coef # a é inclinação, b é intercepto em y
             poly1d_fn = np.poly1d(coef) 
             v_th_extrapolated = -b / a
+            print(f'Transconductance = {a:.2f} S')
             
             x_range = np.linspace(v_th_extrapolated, 5.0, 100) # Plota a reta de ajuste
-            plt.plot(x_range, poly1d_fn(x_range), ls='--', lw = 0.5, c=f_color, alpha=0.8)
+            plt.plot(x_range, poly1d_fn(x_range), ls='--', lw = 0.5, c=colors[f_color], alpha=0.8)
                      
-            plt.text(v_th_extrapolated-0.15, 1, f'{v_th_extrapolated:.2f}', 
-                    color=f_color, fontsize='x-small', fontweight='bold')
+            plt.text(v_th_extrapolated+0.05, 1, f'{v_th_extrapolated:.2f}', 
+                    color=colors[f_color], fontsize='x-small', fontweight='bold')
 
         # Plot original dos pontos
-        plt.plot(x, y, ls='-', marker='.', markersize=5, 
-                label=f_label, lw=1.5, c=f_color)
+        plt.plot(x, y, ls='-', marker='.', markersize=8, 
+                label=f_label, lw=1.5, c=colors[f_color])
     
     plt.gca().xaxis.set_major_locator(ticker.MultipleLocator(0.5))
     plt.gca().xaxis.set_minor_locator(ticker.MultipleLocator(0.1))
-    plt.grid(True, which='major', linestyle='-', linewidth=0.8, alpha=0.7)
-    plt.grid(True, which='minor', linestyle=':', linewidth=0.5, alpha=0.4)
+    plt.grid(True, which='major', linestyle='-', linewidth=0.4, alpha=0.4)
+    #plt.grid(True, which='minor', linestyle=':', linewidth=0.5, alpha=0.4)
 
     plt.gca().yaxis.set_major_locator(ticker.MultipleLocator(20))
     plt.gca().yaxis.set_minor_locator(ticker.MultipleLocator(5))
-    plt.grid(True, which='major', linestyle='-', linewidth=0.8, alpha=0.7)
-    plt.grid(True, which='minor', linestyle=':', linewidth=0.5, alpha=0.4)
+    plt.grid(True, which='major', linestyle='-', linewidth=0.4, alpha=0.4)
+    #plt.grid(True, which='minor', linestyle=':', linewidth=0.5, alpha=0.4)
 
-    plt.xlabel('$V_{G}$, Gate-to-Source Voltage [V]')
+    plt.xlabel('$V_{GS}$, Gate-to-Source Voltage [V]')
     plt.ylabel('$I_{D}$, Drain-to-Source Current [A]')
-    plt.xlim(2, 5)
-    plt.ylim(0, 150)
-    plt.grid(True, linestyle='-', alpha=0.6)
-    #plt.legend(loc='upper left', fontsize='small', ncol=1)
+    plt.xlim(2, 4)
+    plt.ylim(0, 100)
+    plt.grid(True, linestyle='-', alpha=0.2)
+    plt.legend(loc='upper left', fontsize='small', ncol=1)
     plt.tight_layout()
+
+    plt.subplots_adjust(
+    left=0.12,   # Margem esquerda
+    bottom=0.124, # Margem inferior
+    right=0.974,  # Margem direita
+    top=0.971,    # Margem superior
+    wspace=0.2,   # Espaço horizontal entre subplots
+    hspace=0.2    # Espaço vertical entre subplots
+)
     plt.show()
 
 elif test == 'Output':
@@ -121,11 +141,11 @@ elif test == 'Output':
             df_plot = df_plot[df_plot[c] > 0]
             df_plot['Ron'] = df_plot['Vds'] / df_plot[c]
             
-            t_label = c.split('(')[-1].split(')')[0] #+ suffix
-            t_label = t_label.replace('Vg', '$V_{G}$')
+            t_label = c.split('(')[-1].split(')')[0] + suffix
+            t_label = t_label.replace('Vg', '$V_{GS}$')
             
             ax1.plot(df_plot['Vds'], df_plot[c], ls='-', marker='.', markersize=5, 
-                    label=t_label, lw=1.5) #color=colors[i]
+                    label=t_label, lw=1.5, color=colors[i])
             
             ax2.plot(df_plot[c], df_plot['Ron']*1000,ls='-', marker='.', markersize=5, 
                     label=t_label, color=colors[i], lw=1.5)
@@ -141,10 +161,10 @@ elif test == 'Output':
     plt.figure(1)
     plt.xlabel('$V_{DS}$, Drain-to-Source Voltage [V]')
     plt.ylabel('$I_{D}$, Drain-to-Source Current [A]')
-    plt.xlim(0, 4)
-    plt.ylim(0, 180)
+    plt.xlim(0, 2)
+    plt.ylim(0, 160)
     plt.grid(True, linestyle='-', alpha=0.6)
-    plt.legend(loc='upper left', fontsize='small')
+    plt.legend(loc='upper right', fontsize='small')
     plt.tight_layout()
 
     # --- CONFIGURAÇÕES FINAIS: GRÁFICO Rds(on) ---
@@ -161,5 +181,3 @@ elif test == 'Output':
     plt.tight_layout()
 
     plt.show()
-
-

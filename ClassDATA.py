@@ -244,17 +244,22 @@ class DATAclass:
             df = self.processar_dados(csv_path)
             vg, vds, ids = self.dc_estimator(df)
 
-            df_output.append({
-                'Arquivo': file,
-                'Vg': vg,
-                'Vds': vds,
-                'Ids': ids
-            })
+            if abs(vds - 10) < 0.05:
+
+                df_output.append({
+                    'Arquivo': file,
+                    'Vg': vg,
+                    'Vds': vds,
+                    'Ids': ids
+                })
 
             i += 1
             self.print_progress(i, len(files), prefix=f"Plotting {test_name}")
 
         df_final = pd.DataFrame(df_output)
+
+        save_csv_path = os.path.join('Dados', f"{test_name}_ALL.csv")
+        df_final.to_csv(save_csv_path, index=False)
 
         self.actual_plot(df_final, test_name, test, title)
         
@@ -269,7 +274,7 @@ if __name__ == "__main__":
 
     local_folder = "Ensaios"
     #test_name = "OUT_VG25_"
-    test_name = "MOS_VDS10_"
+    test_name = "TRANSFER3"
     TIPO_TESTE = 'Transfer'
 
 
