@@ -8,10 +8,10 @@ start = time.time()
 
 # --- Configurações Iniciais ---
 
-test_name = "M2CT_VD25_"
-#test_name = "TRANSFER4"
+test_name = "M2CT_VD25_teste-1205"
+#test_name = "TRANSFER-"
 
-ds_volt = 25
+ds_volt = 10
 
 init_gate_volt = 1.0
 max_gate_volt = 9.0
