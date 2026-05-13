@@ -145,7 +145,7 @@ class DATAclass:
         
         return ret_vg, ret_vds, ret_ids
     
-    def actual_plot(self, df_all, test_name, test='Output'):
+    def actual_plot(self, df_all, test_name, test='Output', title=''):
         """
         Plot the output or transfer characteristic curve
         from a consolidated DataFrame.
@@ -167,22 +167,24 @@ class DATAclass:
         """
 
         if test == 'Output':
-            x_axis, media, title = 'Vds', 'Vg', 'Output Characteristic'
+            x_axis, x_axis_label, media = 'Vds', 'Vds, Drain-to-Source Voltage [V]', 'Vg'
         elif test == "Transfer":
-            x_axis, media, title = 'Vg', 'Vds', 'Transfer Characteristic'
+            x_axis, x_axis_label, media = 'Vg', 'Vg, Gate-to-Source Voltage [V]', 'Vds'
         else:
             print("Unknown test. Use 'Output' or 'Transfer'.")
             return
 
         plt.figure(figsize=(5, 4))
-        plt.plot(df_all[x_axis], df_all['Ids'], 'o',
-                 label=test_name, markersize=4)
+        plt.plot(df_all[x_axis], df_all['Ids'], ls='',
+                 label=test_name, marker='.', markersize=5)
 
-        plt.title(f'{title} - IRLZ44N')
-        plt.xlabel(f'{x_axis} (V)')
-        plt.ylabel('Ids (A)')
+        plt.title(f'{title}')
+
+        plt.xlabel(x_axis_label)
+        plt.ylabel('Id, Drain-to-Source Current [A]')
+
         plt.grid(True, linestyle='-', alpha=0.6)
-        plt.legend()
+        #plt.legend()
 
         v_medio = df_all[media].mean()
         plt.annotate(
@@ -198,7 +200,7 @@ class DATAclass:
         plt.tight_layout()
         plt.show()
     
-    def sweep_plot(self, local_folder, test_name, test='Output'):
+    def sweep_plot(self, local_folder, test_name, test='Output', title =''):
         """
         Plot the output or transfer characteristic curve by processing
         all individual CSV files within a specified test directory.
@@ -242,19 +244,24 @@ class DATAclass:
             df = self.processar_dados(csv_path)
             vg, vds, ids = self.dc_estimator(df)
 
-            df_output.append({
-                'Arquivo': file,
-                'Vg': vg,
-                'Vds': vds,
-                'Ids': ids
-            })
+            if abs(vds - 10) < 0.05:
+
+                df_output.append({
+                    'Arquivo': file,
+                    'Vg': vg,
+                    'Vds': vds,
+                    'Ids': ids
+                })
 
             i += 1
             self.print_progress(i, len(files), prefix=f"Plotting {test_name}")
 
         df_final = pd.DataFrame(df_output)
 
-        self.actual_plot(df_final, test_name, test)
+        save_csv_path = os.path.join('Dados', f"{test_name}_ALL.csv")
+        df_final.to_csv(save_csv_path, index=False)
+
+        self.actual_plot(df_final, test_name, test, title)
         
         print(f"Arquivo: {file}, Vg: {vg:.2f} V, Vds: {vds:.2f} V, Ids: {ids:.2f} A")
 
@@ -266,9 +273,13 @@ if __name__ == "__main__":
     data = DATAclass()
 
     local_folder = "Ensaios"
-    test_name = "M2CT_VG08_"
+    #test_name = "OUT_VG25_"
+    test_name = "TRANSFER3"
+    TIPO_TESTE = 'Transfer'
+
 
     file_final = f"{local_folder}/{test_name}/{test_name}_ALL.csv"
 
     #data.actual_plot(pd.read_csv(file_final), test_name, test='Output')
-    data.sweep_plot(local_folder, test_name, test='Output')
+    data.sweep_plot(local_folder, test_name, test=TIPO_TESTE,
+                    title = f'{TIPO_TESTE} Characteristics: Si N-MOSFET @{'CT' if 'CT'in test_name else "RT"}')
