@@ -9,20 +9,23 @@ start = time.time()
 # --- Configurações Iniciais ---
 
 #test_name = "MOS12_OUT"
-test_name = "M2CT_VG25_"
+#test_name = "M2CT_VG25_A"
 
-gate_volt = 2.5
+test_name = "MOSX3_VG5"
 
-max_ds_volt = 2
-ds_step = 0.05
-ds_step_sat = 0.15
+
+gate_volt = 5
+
+max_ds_volt = 3
+ds_step = 0.2
+ds_step_sat = 0.65
 
 # --- Configurações Normalmente Constantes ---
 
 remote_folder = "/HD-0/Gabriel"
-local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"
+local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios_v2/"
 
-init_ds_volt = 0.0
+init_ds_volt = 0
 ds_curr = 5.0
 gate_curr = 1.0
 gate_error_threshold = 0.5 #% de erro permitido de Vg
@@ -47,7 +50,6 @@ print(f"----- Starting Output Test: {time.time()} -----")
 while ds_volt < max_ds_volt:
     try:
         test.send_pulse(gate_volt, ds_volt)
-
     except pyvisa.VisaIOError:
         print("Falha na Conexao")
         test.drain_source.output_off()

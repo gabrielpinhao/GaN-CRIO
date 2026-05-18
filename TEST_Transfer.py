@@ -8,19 +8,19 @@ start = time.time()
 
 # --- Configurações Iniciais ---
 
-test_name = "M2CT_VD25_teste-1205"
+test_name = "MOS2_VD25"
 #test_name = "TRANSFER-"
 
-ds_volt = 10
+ds_volt = 25
 
 init_gate_volt = 1.0
-max_gate_volt = 9.0
-gate_step = 0.05
+max_gate_volt = 8.0
+gate_step = 0.1
 
 # --- Configurações Constantes ---
 
 remote_folder = "/HD-0/Gabriel"
-local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"
+local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios_v2/"
 
 ds_curr = 5.0
 gate_curr = 1.0
