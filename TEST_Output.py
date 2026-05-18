@@ -6,6 +6,8 @@ from ClassTEST import Characterization
 
 start = time.time()
 
+## ATENÇÃO: Definir CANAL e NÍVEL do Trigger no osciloscópio antes de rodar o teste. ##
+
 # --- Configurações Iniciais ---
 
 #test_name = "MOS12_OUT"
