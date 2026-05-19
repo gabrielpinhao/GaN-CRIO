@@ -13,14 +13,14 @@ start = time.time()
 #test_name = "MOS12_OUT"
 #test_name = "M2CT_VG25_A"
 
-test_name = "MOSX3_VG5"
+test_name = "SIC_VG9"
 
 
-gate_volt = 5
+gate_volt = 9
 
-max_ds_volt = 3
-ds_step = 0.2
-ds_step_sat = 0.65
+max_ds_volt = 6
+ds_step = 0.15
+ds_step_sat = 0.15
 
 # --- Configurações Normalmente Constantes ---
 
@@ -92,7 +92,7 @@ while ds_volt < max_ds_volt:
             'Ids': ids
             })
 
-            if ds_volt > 1.0: ds_step = ds_step_sat
+            if ds_volt > 3.0: ds_step = ds_step_sat
             ds_volt += ds_step
             good_vg = gate_volt
 

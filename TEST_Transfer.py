@@ -8,14 +8,14 @@ start = time.time()
 
 # --- Configurações Iniciais ---
 
-test_name = "MOS2_VD25"
+test_name = "IGBT_VD10_2_"
 #test_name = "TRANSFER-"
 
-ds_volt = 25
+ds_volt = 9.97
 
-init_gate_volt = 1.0
-max_gate_volt = 8.0
-gate_step = 0.1
+init_gate_volt = 9
+max_gate_volt = 15.0
+gate_step = 0.15
 
 # --- Configurações Constantes ---
 
@@ -35,8 +35,9 @@ init_gate_error = 0.61
 df_transfer = []
 gate_volt = init_gate_volt + init_gate_error
 
-ds_volt = ds_volt + 0.07
+ds_volt = ds_volt + 0.07 #0.07
 ds_target = ds_volt
+ds_volt = ds_volt
 good_vds = ds_volt
 ds_integral = 0.0
 ids = 0.0
@@ -71,7 +72,7 @@ while gate_volt < max_gate_volt + init_gate_error and ids < 130.0:
             if abs(vds - ds_target) < ds_target*0.05:
                 ds_error = ds_target - vds
                 ds_integral += ds_error
-                ds_volt = ds_target + 0.5*ds_error + 0.2*ds_integral
+                ds_volt = ds_target + 1.0*ds_error + 0.2*ds_integral
             else:
                 ds_volt = good_vds
                 ds_integral = 0.0
