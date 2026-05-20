@@ -49,7 +49,7 @@ class YokogawaDL850:
 
         self.scope.write(":TRIGger:MODE SINGle")
         self.scope.write(":ACQuire:RLENgth 4000")
-        self.scope.write(":TIMebase:SRATe 20E6")
+        self.scope.write(":TIMebase:SRATe 5E6")
         self.scope.write(":TIMebase:TDIV 20E-6")
 
         self.scope.write(":CHAN7:DISP ON")
