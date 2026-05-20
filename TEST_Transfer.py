@@ -8,14 +8,14 @@ start = time.time()
 
 # --- Configurações Iniciais ---
 
-test_name = "IGBT_VD10_2_"
+test_name = "SIC_VD10"
 #test_name = "TRANSFER-"
 
-ds_volt = 9.97
+ds_volt = 10
 
-init_gate_volt = 9
-max_gate_volt = 15.0
-gate_step = 0.15
+init_gate_volt = 2
+max_gate_volt = 14
+gate_step = 0.20
 
 # --- Configurações Constantes ---
 
