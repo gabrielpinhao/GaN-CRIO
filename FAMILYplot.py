@@ -193,20 +193,20 @@ def plotar_consolidado_transfer(caminho_arquivo, tipo_plot='linear',
 
 ## ----- EXECUÇÃO DO PROCESSO ----- ##
 
-CAMINHO_PASTA = 'Ensaios'
+CAMINHO_PASTA = 'Ensaios_v2'
 
 #PREFIXO_ARQUIVOS = 'OUT_VG' #Output MOSFET Room Temperature
 #PREFIXO_ARQUIVOS = 'M2CT_VG' #Output MOSFET Cryo Temperature
 #PREFIXO_ARQUIVOS = 'IGBT_VG' #Output IGBT Room Temperature
-PREFIXO_ARQUIVOS = 'MOS_VDS10_' #Output IGBT Room Temperature
+PREFIXO_ARQUIVOS = 'MOSX3_VG5' #Output IGBT Room Temperature
 
 ESTILO_PLOT = 'linear'
-TIPO_TESTE = 'Transfer'
+TIPO_TESTE = 'Output'
 
 ARQUIVO_SAIDA = f'{PREFIXO_ARQUIVOS}_final.csv'
 
 if TIPO_TESTE == 'Output':
-    if not s.path.exists(ARQUIVO_SAIDA):
+    if not os.path.exists(ARQUIVO_SAIDA):
         consolidar_dados_output(CAMINHO_PASTA, PREFIXO_ARQUIVOS, ARQUIVO_SAIDA) # 1. Consolidar
 
     if os.path.exists(ARQUIVO_SAIDA): # 2. Plotar

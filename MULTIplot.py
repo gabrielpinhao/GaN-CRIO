@@ -15,11 +15,11 @@ import numpy as np
 folder = 'Dados'
 
 files = [
-        "M2RT_VD10_final.csv", "M2CT_VD10_final.csv"
+        "MOSX3_VG5.csv"
         ]
 
 #Caso Output, colocar os Vgs desejados aqui para filtrar as colunas [10, 15, ...]
-vgs = [3, 4, 10, 15]
+vgs = [5]
 #vgs = [2.5, 3, 4, 6, 8, 10, 12, 15] 
 #vgs = [15]
 
@@ -161,8 +161,8 @@ elif test == 'Output':
     plt.figure(1)
     plt.xlabel('$V_{DS}$, Drain-to-Source Voltage [V]')
     plt.ylabel('$I_{D}$, Drain-to-Source Current [A]')
-    plt.xlim(0, 2)
-    plt.ylim(0, 160)
+    #plt.xlim(0, 2)
+    #plt.ylim(0, 160)
     plt.grid(True, linestyle='-', alpha=0.6)
     plt.legend(loc='upper right', fontsize='small')
     plt.tight_layout()
