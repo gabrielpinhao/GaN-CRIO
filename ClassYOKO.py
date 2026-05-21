@@ -48,7 +48,7 @@ class YokogawaDL850:
         print("Setting acquisition parameters...")
 
         self.scope.write(":TRIGger:MODE SINGle")
-        self.scope.write(":ACQuire:RLENgth 4000")
+        self.scope.write(":ACQuire:RLENgth 1000")
         self.scope.write(":TIMebase:SRATe 5E6")
         self.scope.write(":TIMebase:TDIV 20E-6")
 
