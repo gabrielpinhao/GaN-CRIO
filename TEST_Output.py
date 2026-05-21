@@ -13,14 +13,14 @@ start = time.time()
 #test_name = "MOS12_OUT"
 #test_name = "M2CT_VG25_A"
 
-test_name = "SICCT_VG00_"
+test_name = "SICCT_VG9_"
 
 
-gate_volt = 18
+gate_volt = 9
 
 max_ds_volt = 6
-ds_step = 0.20
-ds_step_sat = 0.20
+ds_step = 0.10
+ds_step_sat = 0.10
 
 # --- Configurações Normalmente Constantes ---
 
