@@ -13,12 +13,12 @@ start = time.time()
 #test_name = "MOS12_OUT"
 #test_name = "M2CT_VG25_A"
 
-test_name = "SICCT_VG9_"
+test_name = "I2CT_VG11_"
 
 
-gate_volt = 9
+gate_volt = 11
 
-max_ds_volt = 6
+max_ds_volt = 4.5
 ds_step = 0.10
 ds_step_sat = 0.10
 
@@ -27,7 +27,7 @@ ds_step_sat = 0.10
 remote_folder = "/HD-0/Gabriel"
 local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios_v2/"
 
-init_ds_volt = 0
+init_ds_volt = 1
 ds_curr = 5.0
 gate_curr = 1.0
 gate_error_threshold = 0.5 #% de erro permitido de Vg
