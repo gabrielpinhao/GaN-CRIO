@@ -99,7 +99,7 @@ def gerar_arquivo_all_output(test_name, local_folder= 'Ensaios'):
 
         else:
             df_final = []
-            vg_target = float(test[7:9])
+            vg_target = 18
             if vg_target == 25.0: vg_target = 2.5
 
             print((f"Processando {test} com {len(samples)} amostras. Vg alvo: {vg_target}"))
@@ -124,7 +124,7 @@ def gerar_arquivo_all_output(test_name, local_folder= 'Ensaios'):
             df_final.to_csv(file_final, index=False)
             print(f"Arquivo ALL.csv gerado para {test} em: {file_final}")
 
-def consolidar_dados_transfer(folder, prefix, output_file):
+def consolidar_dados_transfer(folder, prefix):
     """
     Lê arquivos CSV, ordena por Vds médio e consolida em um único DataFrame e arquivo CSV.
     """
@@ -133,7 +133,7 @@ def consolidar_dados_transfer(folder, prefix, output_file):
     data = DATAclass()  
 
     #vd_target = float(prefix[7:9])
-    vd_target = 15
+    vd_target = 10
     df_final = []
 
     for file in files:
@@ -193,32 +193,35 @@ def plotar_consolidado_transfer(caminho_arquivo, tipo_plot='linear',
 
 ## ----- EXECUÇÃO DO PROCESSO ----- ##
 
-CAMINHO_PASTA = 'Ensaios_v2'
+CAMINHO_PASTA = 'Ensaios_v2\G3F60MT06K'
+
+consolidar_dados_output(CAMINHO_PASTA, 'SIC_VG', 'SiCRT_VG_ALL.csv')
+#gerar_arquivo_all_output('SIC_VG18', local_folder=CAMINHO_PASTA)
+
 
 #PREFIXO_ARQUIVOS = 'OUT_VG' #Output MOSFET Room Temperature
 #PREFIXO_ARQUIVOS = 'M2CT_VG' #Output MOSFET Cryo Temperature
-#PREFIXO_ARQUIVOS = 'IGBT_VG' #Output IGBT Room Temperature
-PREFIXO_ARQUIVOS = 'MOSX3_VG5' #Output IGBT Room Temperature
+# PREFIXO_ARQUIVOS = 'IGBT_VD10_' #Output IGBT Room Temperature
 
-ESTILO_PLOT = 'linear'
-TIPO_TESTE = 'Output'
+# ESTILO_PLOT = 'linear'
+# TIPO_TESTE = 'Transfer' # 'Output' ou 'Transfer'
 
-ARQUIVO_SAIDA = f'{PREFIXO_ARQUIVOS}_final.csv'
+# ARQUIVO_SAIDA = f'{PREFIXO_ARQUIVOS}_final.csv'
 
-if TIPO_TESTE == 'Output':
-    if not os.path.exists(ARQUIVO_SAIDA):
-        consolidar_dados_output(CAMINHO_PASTA, PREFIXO_ARQUIVOS, ARQUIVO_SAIDA) # 1. Consolidar
+# if TIPO_TESTE == 'Output':
+#     if not os.path.exists(ARQUIVO_SAIDA):
+#         consolidar_dados_output(CAMINHO_PASTA, PREFIXO_ARQUIVOS, ARQUIVO_SAIDA) # 1. Consolidar
 
-    if os.path.exists(ARQUIVO_SAIDA): # 2. Plotar
-        plotar_consolidado_output(ARQUIVO_SAIDA, tipo_plot=ESTILO_PLOT,
-                                titulo=f'{TIPO_TESTE} Characteristics: Si N-MOSFET @{'CT' if 'CT'in PREFIXO_ARQUIVOS else "RT"}')
+#     if os.path.exists(ARQUIVO_SAIDA): # 2. Plotar
+#         plotar_consolidado_output(ARQUIVO_SAIDA, tipo_plot=ESTILO_PLOT,
+#                                 titulo=f'{TIPO_TESTE} Characteristics: Si N-MOSFET @{'CT' if 'CT'in PREFIXO_ARQUIVOS else "RT"}')
         
-elif TIPO_TESTE == 'Transfer':
-    if not os.path.exists(ARQUIVO_SAIDA):
-        consolidar_dados_transfer(CAMINHO_PASTA, PREFIXO_ARQUIVOS, ARQUIVO_SAIDA) # 1. Consolidar
+# elif TIPO_TESTE == 'Transfer':
+#     if not os.path.exists(ARQUIVO_SAIDA):
+#         consolidar_dados_transfer(CAMINHO_PASTA, PREFIXO_ARQUIVOS, ARQUIVO_SAIDA) # 1. Consolidar
 
-    if os.path.exists(ARQUIVO_SAIDA):
-        plotar_consolidado_transfer(ARQUIVO_SAIDA, tipo_plot=ESTILO_PLOT,
-                                    titulo=f'{TIPO_TESTE} Characteristics: Si N-MOSFET @{"CT" if "CT"in PREFIXO_ARQUIVOS else "RT"}')
+#     if os.path.exists(ARQUIVO_SAIDA):
+#         plotar_consolidado_transfer(ARQUIVO_SAIDA, tipo_plot=ESTILO_PLOT,
+#                                     titulo=f'{TIPO_TESTE} Characteristics: Si N-MOSFET @{"CT" if "CT"in PREFIXO_ARQUIVOS else "RT"}')
 
 #gerar_arquivo_all_output(PREFIXO_ARQUIVOS)
