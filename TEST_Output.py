@@ -13,12 +13,12 @@ start = time.time()
 #test_name = "MOS12_OUT"
 #test_name = "M2CT_VG25_A"
 
-test_name = "I2CT_VG11_"
+test_name = "I2CT_VG15_"
 
 
-gate_volt = 11
+gate_volt = 15
 
-max_ds_volt = 4.5
+max_ds_volt = 5
 ds_step = 0.10
 ds_step_sat = 0.10
 
