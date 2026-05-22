@@ -8,12 +8,12 @@ start = time.time()
 
 # --- Configurações Iniciais ---
 
-test_name = "SICCT_VD10_"
+test_name = "I2CT_VD10_"
 #test_name = "TRANSFER-"
 
 ds_volt = 10
 
-init_gate_volt = 2
+init_gate_volt = 5
 max_gate_volt = 18
 gate_step = 0.10
 
@@ -44,7 +44,7 @@ ids = 0.0
 
 print(f"----- Starting Transfer Test: {time.time()} -----")
 
-while gate_volt < max_gate_volt + init_gate_error and ids < 75.0:
+while gate_volt < max_gate_volt + init_gate_error and ids < 140.0:
 
     try:
         test.send_pulse(gate_volt, ds_volt)
