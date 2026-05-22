@@ -195,9 +195,8 @@ def plotar_consolidado_transfer(caminho_arquivo, tipo_plot='linear',
 
 CAMINHO_PASTA = 'Ensaios_v2\G3F60MT06K'
 
-consolidar_dados_output(CAMINHO_PASTA, 'SIC_VG', 'SiCRT_VG_ALL.csv')
+consolidar_dados_output(CAMINHO_PASTA, 'SICCT_VG', 'SICCT_VG_ALL.csv')
 #gerar_arquivo_all_output('SIC_VG18', local_folder=CAMINHO_PASTA)
-
 
 #PREFIXO_ARQUIVOS = 'OUT_VG' #Output MOSFET Room Temperature
 #PREFIXO_ARQUIVOS = 'M2CT_VG' #Output MOSFET Cryo Temperature

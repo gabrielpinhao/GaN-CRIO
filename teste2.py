@@ -1,12 +1,3 @@
-"""Plotar as curvas de transferência e saída dos MOSFETs a partir dos arquivos CSV gerados pelo sistema:
-
-- Certifique-se de que os arquivos CSV estejam no formato correto, com colunas nomeadas adequadamente (ex: 'Vg', 'Ids', 'Vds', etc.).
-- O script irá gerar gráficos para as curvas de transferência (Ids vs Vg) e saída (Ids vs Vds) com base nos arquivos fornecidos.
-- As curvas devem estar consolidadas em um único gráfico para cada tipo de teste (Transferência e Saída), permitindo comparação direta entre as condições de teste (ex: temperatura).
-- As curvas de transferência devem ter VD no nome, definindo o valor utilizado como tensão dreno-Source.
-- As curvas de saída devem ter VG no nome, definindo o valor de tensão gate-Source.
-- Ajuste os parâmetros de plotagem conforme necessário para melhor visualização dos dados."""
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -14,49 +5,44 @@ import numpy as np
 
 folder = 'Dados'
 
-files = [
-        "SICCT_VG_ALL.csv",
-        "SICRT_VG_ALL.csv",
-        "I2RT_VG_final.csv",
-        "M2RT_VG_final.csv",
-        "M2CT_VG_final.csv"
-        ]
-
-switch = 'MOSFET SiC'
+files = {
+        "SICCT_VG_ALL.csv": 'MOSFET SiC',
+        "SICRT_VG_ALL.csv": 'MOSFET SiC',
+        "I2RT_VG_final.csv": 'IGBT',
+        "M2RT_VG_final.csv": 'MOSFET Si2',
+        "M2CT_VG_final.csv": 'MOSFET Si2'
+}
 
 # Caso Output, colocar os Vgs desejados aqui para filtrar as colunas [10, 15, ...]
 # Para plotar todos, deixe a lista vazia.
 
-vgs = []
+vgs = [9,11]
 #vgs = [5, 7, 9, 11, 13]
 #vgs = [2.5, 3, 4, 6, 8, 10, 12, 15] 
 
-# ====== DADOS DAS CHAVES ======
+# ================================ DADOS DAS CHAVES ===================================
 
 rdson = {
     'MOSFET SiC': 45, # mOhm
     'MOSFET Si1': 12, # mOhm
-    'MOSFET Si2': 75, # mOhm
-    'IGBT': 75, # mOhm
+    'MOSFET Si2': 7.5, # mOhm
+    'IGBT': 38.333, # mOhm
     'GaN HEMT': 75, # mOhm
 }
 
-print(rdson[switch])
+print(list(files.keys()))
 
 
+# ==================================== PLOTAGEM ======================================
 
-
-
-# ========== PLOTAGEM ==========
-
-test = 'Transfer' if 'VD' in files[0] else 'Output'
+test = 'Transfer' if 'VD' in files[list(files.keys())[0]] else 'Output'
 
 if test == 'Transfer':
 
     plt.figure(figsize=(5, 4))
     rt = ct = 0
 
-    for f in files:
+    for f in list(files.keys()):
         df = pd.read_csv(f"{folder}/{f}")
         df = df.sort_values(by='Vg').reset_index(drop=True)
 
@@ -140,7 +126,8 @@ elif test == 'Output':
     fig2 = plt.figure(2, figsize=(5, 4))
     ax2 = fig2.add_subplot(111) # Gráfico de Ron vs Ids (Resistência)
 
-    for f in files:
+    for f in list(files.keys()):
+        
         df = pd.read_csv(f"{folder}/{f}")
 
         colunas_para_dropar = [
@@ -170,12 +157,12 @@ elif test == 'Output':
             t_label = c.split('(')[-1].split(')')[0] + suffix
             t_label = t_label.replace('Vg', '$V_{GS}$')
 
-            rd_label = f"{switch}: {suffix}"
+            rd_label = f"{files[f]}: {suffix}"
             
             ax1.plot(df_plot['Vds'], df_plot[c], ls='-', marker='.', markersize=5, 
                     label=t_label, lw=1.5, color=colors[i])
             
-            ax2.plot(df_plot[c], df_plot['Ron']*1000,ls='-', marker='.', markersize=5, 
+            ax2.plot(df_plot[c], df_plot['Ron']*1000/rdson[files[f]],ls='-', marker='.', markersize=5, 
                     label=rd_label, color=colors[i], lw=1.5)
             
             filtro_ron = df_plot[df_plot[c] > xmin]
@@ -209,17 +196,21 @@ elif test == 'Output':
     plt.tight_layout()
 
     plt.subplots_adjust(
-        left=0.10,   right=0.986,
-        bottom=0.12, top=0.983,
-        wspace=0.2,  hspace=0.2 
-    )
+    left=0.10,   # Margem esquerda
+    bottom=0.12, # Margem inferior
+    right=0.986,  # Margem direita
+    top=0.983,    # Margem superior
+    wspace=0.2,   # Espaço horizontal entre subplots
+    hspace=0.2    # Espaço vertical entre subplots
+)
 
     # --- CONFIGURAÇÕES FINAIS: GRÁFICO Rds(on) ---
     
     plt.figure(2)
     #plt.title('On-Resistance Characteristics')
     plt.xlabel('$I_{D}$, Drain-to-Source Current [A]')
-    plt.ylabel('$R_{DS(on)}$, Static On-Resistance [$m\Omega$]')
+    plt.ylabel('$R_{DS(on)}$, Static On-Resistance [$pu$]')
+    #plt.yscale('log') # Ron costuma ser melhor visualizado em log se variar muito
     plt.grid(True, which="both", linestyle='-', alpha=0.6)
     plt.legend(loc='upper right', fontsize='small')
     #plt.xlim(5, 60)
@@ -227,9 +218,11 @@ elif test == 'Output':
     plt.tight_layout()
 
     plt.subplots_adjust(
-        left=0.12,    right=0.974,
-        bottom=0.124, top=0.971,
-        wspace=0.2,   hspace=0.2 
+        left=0.123,   # Margem esquerda
+        bottom=0.124, # Margem inferior
+        right=0.974,  # Margem direita
+        top=0.971,    # Margem superior
+        wspace=0.2,   # Espaço horizontal entre subplots
+        hspace=0.2    # Espaço vertical entre subplots
     )
-
     plt.show()
