@@ -2,11 +2,13 @@ import os
 import time
 import pyvisa
 import pandas as pd
+import serial
+import sys
 from ClassHIKARI import HikariHF3205P
 from ClassYOKO import YokogawaDL850  
 from ClassFTP import FTPDownloader
 from ClassDATA import DATAclass
-import serial
+from ClassESP32 import ControladorESP32
 
 class Characterization:
 
@@ -16,6 +18,7 @@ class Characterization:
         self.ftp = FTPDownloader()
         self.rm = pyvisa.ResourceManager()
         self.yoko = YokogawaDL850(yoko_address)
+        self.esp32 = ControladorESP32(porta_com='COM6')
         self.resources = self.rm.list_resources()
         self.local_folder = local_folder
         self.timeout = 60000
@@ -24,6 +27,7 @@ class Characterization:
         
         try:
             print("ENTROU NO TRY")
+            self.esp32.conectar()
             self.yoko.conectar()
             self.yoko.configurar_aquisicao(test_name)
 
@@ -52,6 +56,7 @@ class Characterization:
     def send_pulse(self, gate_volt, ds_volt):
         
         self.yoko.measure_start()
+        self.esp32.ligar()
     
         self.drain_source.set_voltage(ds_volt)
         self.gate_source.set_voltage(gate_volt)
@@ -63,6 +68,7 @@ class Characterization:
         self.drain_source.output_off()
         time.sleep(0.5)
         self.gate_source.output_on()
+        self.esp32.enviar_pulso()
         time.sleep(0.08)
         self.gate_source.output_off()
       
