@@ -55,8 +55,8 @@ class Characterization:
 
     def send_pulse(self, gate_volt, ds_volt):
         
-        self.yoko.measure_start()
         self.esp32.ligar()
+        self.yoko.measure_start()
     
         self.drain_source.set_voltage(ds_volt)
         self.gate_source.set_voltage(gate_volt)
@@ -84,6 +84,7 @@ class Characterization:
         self.gate_source.output_on()
         time.sleep(10)
         self.gate_source.output_off()
+        self.esp32.desligar()
 
     def current_set(self, gate_curr, ds_curr):
         self.gate_source.set_current(gate_curr)
