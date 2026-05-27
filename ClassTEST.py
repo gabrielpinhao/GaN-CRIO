@@ -6,6 +6,7 @@ from ClassHIKARI import HikariHF3205P
 from ClassYOKO import YokogawaDL850  
 from ClassFTP import FTPDownloader
 from ClassDATA import DATAclass
+import serial
 
 class Characterization:
 

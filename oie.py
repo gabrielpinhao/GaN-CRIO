@@ -18,13 +18,17 @@ except Exception as e:
     exit()
 
 # --- FUNÇÕES DOS BOTÕES ---
-def ligar():
+def pulso():
     esp32.write(b'1') # Envia o caractere '1' em formato de byte
-    print("Comando LIGAR enviado.")
+    print("Comando pulso enviado.")
 
 def desligar():
     esp32.write(b'0') # Envia o caractere '0' em formato de byte
-    print("Comando DESLIGAR enviado.")
+    print("Comando DESLIGAR esp32 enviado.")
+
+def ligar_esp32():
+    esp32.write(b'2') # Envia o caractere '2' para ligar o ESP32 estado alto
+    print("Comando LIGAR ESP32 enviado.")
 
 # --- INTERFACE GRÁFICA (TKINTER) ---
 janela = tk.Tk()
@@ -33,11 +37,14 @@ janela.geometry("300x200")
 janela.eval('tk::PlaceWindow . center') # Centraliza a janela
 
 # Título
-label_titulo = tk.Label(janela, text="Controle PWM", font=("Arial", 14, "bold"))
+label_titulo = tk.Label(janela, text="Controle esp32", font=("Arial", 14, "bold"))
 label_titulo.pack(pady=15)
 
+
+btn_ligar = tk.Button(janela, text="Ligar esp32", bg="black", fg="white", font=("Arial", 12), width=15, command=ligar_esp32)
+btn_ligar.pack(pady=5)
 # Botão Ligar - Adicionado command=ligar
-btn_ligar = tk.Button(janela, text="Ligar LED", bg="green", fg="white", font=("Arial", 12), width=15, command=ligar)
+btn_ligar = tk.Button(janela, text="pulso", bg="green", fg="white", font=("Arial", 12), width=15, command=pulso)
 btn_ligar.pack(pady=5)
 
 # Botão Desligar - Adicionado command=desligar
