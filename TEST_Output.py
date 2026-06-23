@@ -16,9 +16,9 @@ start = time.time()
 test_name = "I2CT_VG15_"
 
 
-gate_volt = 15
+gate_volt = 10
 
-max_ds_volt = 5
+max_ds_volt = 3
 ds_step = 0.10
 ds_step_sat = 0.10
 

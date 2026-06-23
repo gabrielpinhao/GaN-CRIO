@@ -10,7 +10,6 @@ class ControladorESP32:
         self.porta_com = porta_com
         self.velocidade = velocidade
         self.conexao = None
-        self.conectar()
 
     def conectar(self):
         """Estabelece a conexão serial com o ESP32."""
@@ -61,9 +60,11 @@ class ControladorESP32:
 # ==========================================
 # EXEMPLO DE COMO USAR A CLASSE NO SEU CÓDIGO
 # ==========================================
+
 if __name__ == "__main__":
     # 1. Criando o objeto (isso já executa a conexão automaticamente)
-    meu_esp32 = ControladorESP32(porta_com='COM6')
+    meu_esp32 = ControladorESP32(porta_com='COM4')
+    meu_esp32.conectar()
 
     # 2. Chamando os métodos do objeto
     meu_esp32.ligar()

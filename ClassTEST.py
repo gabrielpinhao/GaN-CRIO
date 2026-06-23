@@ -18,7 +18,7 @@ class Characterization:
         self.ftp = FTPDownloader()
         self.rm = pyvisa.ResourceManager()
         self.yoko = YokogawaDL850(yoko_address)
-        self.esp32 = ControladorESP32(porta_com='COM6')
+        self.esp32 = ControladorESP32(porta_com='COM4')
         self.resources = self.rm.list_resources()
         self.local_folder = local_folder
         self.timeout = 60000
