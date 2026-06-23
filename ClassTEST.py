@@ -64,12 +64,12 @@ class Characterization:
         time.sleep(0.5)
       
         self.drain_source.output_on()
+        self.gate_source.output_on()
         time.sleep(5)
         self.drain_source.output_off()
         time.sleep(0.5)
-        self.gate_source.output_on()
         self.esp32.enviar_pulso()
-        time.sleep(0.08)
+        time.sleep(0.1)
         self.gate_source.output_off()
       
         self.yoko.measure_save()

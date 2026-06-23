@@ -13,7 +13,7 @@ start = time.time()
 #test_name = "MOS12_OUT"
 #test_name = "M2CT_VG25_A"
 
-test_name = "I2CT_VG15_"
+test_name = "TESTE_ESP"
 
 
 gate_volt = 10
