@@ -13,28 +13,28 @@ start = time.time()
 #test_name = "MOS12_OUT"
 #test_name = "M2CT_VG25_A"
 
-test_name = "TESTE_ESP"
+test_name = "MOD_IGBT"
 
 
 gate_volt = 10
 
-max_ds_volt = 3
+max_ds_volt = 2.5
 ds_step = 0.10
 ds_step_sat = 0.10
 
 # --- Configurações Normalmente Constantes ---
 
 remote_folder = "/HD-0/Gabriel"
-local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios_v2/"
+local_folder = f"C:/Users/maril/Desktop/Ensaios-GAN"
 
-init_ds_volt = 1
+init_ds_volt = 0
 ds_curr = 5.0
 gate_curr = 1.0
 gate_error_threshold = 0.5 #% de erro permitido de Vg
 
 test = Characterization(local_folder, test_name)
 test.ftp.connect()
-test.current_set(gate_curr, ds_curr)
+test.current_set(ds_curr)
 
 vg_target = gate_volt
 init_gate_error = 0.61
@@ -51,17 +51,17 @@ print(f"----- Starting Output Test: {time.time()} -----")
 
 while ds_volt < max_ds_volt:
     try:
-        test.send_pulse(gate_volt, ds_volt)
+        test.send_pulse(ds_volt)
     except pyvisa.VisaIOError:
         print("Falha na Conexao")
         test.drain_source.output_off()
-        test.gate_source.output_off()
+        test.esp32.desligar()
         exit()
 
     except KeyboardInterrupt:
         print("\nMANUAL STOP!")
         test.drain_source.output_off()
-        test.gate_source.output_off()
+        test.esp32.desligar()
         exit()
 
     finally:
@@ -71,30 +71,19 @@ while ds_volt < max_ds_volt:
         df = test.data.processar_dados(last_file_addr)
         vg, vds, ids = test.data.dc_estimator(df)
     
-        if (abs(vg - vg_target) / vg_target) * 100 > gate_error_threshold:
-            print(f"High Vg Error. Vg: {vg:.2f} V, Target: {vg_target:.2f} V")
+    
+        print(f"Vg: {vg:.2f} V, Vds: {vds:.2f} V, Ids: {ids:.2f} A")
 
-            if abs(vg - vg_target) < vg_target*0.05:
-                gate_error = vg_target - vg
-                gate_integral += gate_error
-                gate_volt = vg_target + init_gate_error + 0.25*gate_error + 0.05*gate_integral
-            else:
-                gate_volt = good_vg
-                gate_integral = 0.0
-        
-        else:
-            print(f"Vg: {vg:.2f} V, Vds: {vds:.2f} V, Ids: {ids:.2f} A")
+        df_output.append({
+        'Arquivo': latest_file_name,
+        'Vg': vg,
+        'Vds': vds,
+        'Ids': ids
+        })
 
-            df_output.append({
-            'Arquivo': latest_file_name,
-            'Vg': vg,
-            'Vds': vds,
-            'Ids': ids
-            })
-
-            if ds_volt > 3.0: ds_step = ds_step_sat
-            ds_volt += ds_step
-            good_vg = gate_volt
+        if ds_volt > 3.0: ds_step = ds_step_sat
+        ds_volt += ds_step
+        good_vg = gate_volt
 
 test.ftp.close()
 

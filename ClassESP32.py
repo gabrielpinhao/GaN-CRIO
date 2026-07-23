@@ -63,7 +63,7 @@ class ControladorESP32:
 
 if __name__ == "__main__":
     # 1. Criando o objeto (isso já executa a conexão automaticamente)
-    meu_esp32 = ControladorESP32(porta_com='COM4')
+    meu_esp32 = ControladorESP32(porta_com='COM3')
     meu_esp32.conectar()
 
     # 2. Chamando os métodos do objeto

@@ -34,17 +34,15 @@ class Characterization:
         except Exception as e:
             print(f"Erro ao conectar ao osciloscópio: {e}")
 
+        self.drain_source = None
         for r in self.resources:
             try:
                 inst = self.rm.open_resource(r)
                 idn = inst.query('*IDN?').strip()
                 print(f"{r}: SN:{idn[-8:]}")
+                inst.close()
 
-                if int(idn[-8:]) == 49152063:
-                    self.gate_source = HikariHF3205P(resource=r)
-                    print("Fonte conectada:", self.gate_source.idn())
-
-                elif int(idn[-8:]) == 9437206:
+                if int(idn[-8:]) == 9437206:
                     self.drain_source = HikariHF3205P(resource=r)
                     print("Fonte conectada:", self.drain_source.idn())
 
@@ -53,41 +51,36 @@ class Characterization:
                 
         time.sleep(0.5)
 
-    def send_pulse(self, gate_volt, ds_volt):
+    def send_pulse(self, ds_volt):
         
-        self.esp32.ligar()
         self.yoko.measure_start()
     
         self.drain_source.set_voltage(ds_volt)
-        self.gate_source.set_voltage(gate_volt)
       
         time.sleep(0.5)
       
         self.drain_source.output_on()
-        self.gate_source.output_on()
         time.sleep(5)
         self.drain_source.output_off()
         time.sleep(0.5)
         self.esp32.enviar_pulso()
         time.sleep(0.1)
-        self.gate_source.output_off()
+        
       
         self.yoko.measure_save()
 
 
     def clear_capacitor(self):
         print("Discharging Capacitor...")
-        self.gate_source.set_voltage(4.0)
         self.drain_source.set_voltage(2.0)
         self.drain_source.output_off()
         time.sleep(0.5)
-        self.gate_source.output_on()
+        self.esp32.ligar()
         time.sleep(10)
-        self.gate_source.output_off()
         self.esp32.desligar()
+        
 
-    def current_set(self, gate_curr, ds_curr):
-        self.gate_source.set_current(gate_curr)
+    def current_set(self, ds_curr):
         self.drain_source.set_current(ds_curr)
     
 
@@ -96,6 +89,6 @@ if __name__ == "__main__":
     local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"
 
     test = Characterization(local_folder, test_name)
-    test.send_pulse(gate_volt=5.0, ds_volt=2.0, test_name=test_name)
+    test.send_pulse(ds_volt=2.0)
     test.clear_capacitor()
 

@@ -28,7 +28,7 @@ error_threshold = 1.0
 
 test = Characterization(local_folder, test_name)
 test.ftp.connect()
-test.current_set(gate_curr, ds_curr)
+test.current_set(ds_curr)
 
 init_gate_error = 0.61
 
@@ -47,18 +47,16 @@ print(f"----- Starting Transfer Test: {time.time()} -----")
 while gate_volt < max_gate_volt + init_gate_error and ids < 140.0:
 
     try:
-        test.send_pulse(gate_volt, ds_volt)
+        test.send_pulse(ds_volt)
 
     except pyvisa.VisaIOError:
         print("Error in Sending Pulse")
         test.drain_source.output_off()
-        test.gate_source.output_off()
         exit()
 
     except KeyboardInterrupt:
         print("\nMANUAL STOP!")
         test.drain_source.output_off()
-        test.gate_source.output_off()
         exit()
 
     finally:

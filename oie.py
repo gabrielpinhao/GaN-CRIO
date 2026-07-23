@@ -4,7 +4,7 @@ import time
 
 # --- CONFIGURAÇÃO DA PORTA SERIAL ---
 # Mude 'COM3' para a porta onde seu ESP32 está conectado!
-PORTA_COM = 'COM6' 
+PORTA_COM = 'COM4' 
 VELOCIDADE = 115200
 
 try:

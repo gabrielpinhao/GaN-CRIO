@@ -1,7 +1,7 @@
 // Para Caracterização estática
 #include <Arduino.h>
 
-#define PINO_SAIDA 23 
+#define PINO_SAIDA 19 
 
 void setup() {
   Serial.begin(115200);         // Inicia a comunicação serial
@@ -18,9 +18,9 @@ void loop() {
 
     // Comando '1': Executa o pulso rápido de 80 microssegundos
     if (comando == '1') {
-      digitalWrite(PINO_SAIDA, LOW);   // Desliga (0V)
+      digitalWrite(PINO_SAIDA, HIGH);   // Desliga (0V)
       delayMicroseconds(80);           // Aguarda 80us
-      digitalWrite(PINO_SAIDA, HIGH);  // Liga de novo (3.3V)
+      digitalWrite(PINO_SAIDA, LOW);  // Liga de novo (3.3V)
     } 
     
     // Comando '0': Desliga a saída e mantém em 0V

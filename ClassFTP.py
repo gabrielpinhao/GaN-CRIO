@@ -70,7 +70,7 @@ def main():
     test_name = "OUTPUT_TEST"
 
     remote_folder = "/HD-0/Gabriel"
-    local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"
+    local_folder = f"C:/Users/maril/Desktop/Ensaios-GAN"
 
     # --- Preparar pasta ---
     create_local_folder(local_folder, test_name)
