@@ -34,13 +34,15 @@ class Characterization:
         except Exception as e:
             print(f"Erro ao conectar ao osciloscópio: {e}")
 
-        self.drain_source = None
         for r in self.resources:
             try:
                 inst = self.rm.open_resource(r)
                 idn = inst.query('*IDN?').strip()
                 print(f"{r}: SN:{idn[-8:]}")
-                inst.close()
+
+                #if int(idn[-8:]) == 49152063:
+                    #self.gate_source = HikariHF3205P(resource=r)
+                    #print("Fonte conectada:", self.gate_source.idn())
 
                 if int(idn[-8:]) == 9437206:
                     self.drain_source = HikariHF3205P(resource=r)
@@ -72,15 +74,19 @@ class Characterization:
 
     def clear_capacitor(self):
         print("Discharging Capacitor...")
+        #self.gate_source.set_voltage(4.0)
         self.drain_source.set_voltage(2.0)
         self.drain_source.output_off()
         time.sleep(0.5)
+        #self.gate_source.output_on()
         self.esp32.ligar()
         time.sleep(10)
         self.esp32.desligar()
+        #self.gate_source.output_off()
         
 
     def current_set(self, ds_curr):
+        #self.gate_source.set_current(gate_curr)
         self.drain_source.set_current(ds_curr)
     
 
@@ -89,6 +95,6 @@ if __name__ == "__main__":
     local_folder = f"C:/Users/nitee/Desktop/GaN-CRIO/GaN-CRIO/Ensaios/"
 
     test = Characterization(local_folder, test_name)
-    test.send_pulse(ds_volt=2.0)
+    test.send_pulse(ds_volt=2.0, test_name=test_name)
     test.clear_capacitor()
 
