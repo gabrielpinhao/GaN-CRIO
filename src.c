@@ -7,8 +7,8 @@ void setup() {
   Serial.begin(115200);         // Inicia a comunicação serial
   pinMode(PINO_SAIDA, OUTPUT);  // Configura o pino como saída
 
-  // Inicializa o pino em HIGH (3.3V) por padrão
-  digitalWrite(PINO_SAIDA, HIGH); 
+  // Inicializa o pino em LOW (0.0V) por padrão
+  digitalWrite(PINO_SAIDA, LOW); 
 }
 
 void loop() {
@@ -19,7 +19,7 @@ void loop() {
     // Comando '1': Executa o pulso rápido de 80 microssegundos
     if (comando == '1') {
       digitalWrite(PINO_SAIDA, HIGH);   // Desliga (0V)
-      delayMicroseconds(80);           // Aguarda 80us
+      delayMicroseconds(120);           // Aguarda 80us
       digitalWrite(PINO_SAIDA, LOW);  // Liga de novo (3.3V)
     } 
     

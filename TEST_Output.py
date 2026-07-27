@@ -13,21 +13,21 @@ start = time.time()
 #test_name = "MOS12_OUT"
 #test_name = "M2CT_VG25_A"
 
-test_name = "MOD_IGBT"
+test_name = "MOD1_IGBT2X"
 
 
-gate_volt = 10
+gate_volt = 15
 
-max_ds_volt = 2.5
-ds_step = 0.10
+max_ds_volt = 2.3
+ds_step = 0.05
 ds_step_sat = 0.10
 
 # --- Configurações Normalmente Constantes ---
 
 remote_folder = "/HD-0/Gabriel"
-local_folder = f"C:/Users/maril/Desktop/Ensaios-GAN"
+local_folder = f"C:/Users/maril/Desktop/Ensaios-GAN/novos"
 
-init_ds_volt = 0
+init_ds_volt = 0.0
 ds_curr = 5.0
 gate_curr = 1.0
 gate_error_threshold = 0.5 #% de erro permitido de Vg

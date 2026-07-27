@@ -35,21 +35,28 @@ class Characterization:
             print(f"Erro ao conectar ao osciloscópio: {e}")
 
         for r in self.resources:
+            inst = None
             try:
                 inst = self.rm.open_resource(r)
                 idn = inst.query('*IDN?').strip()
                 print(f"{r}: SN:{idn[-8:]}")
 
-                #if int(idn[-8:]) == 49152063:
-                    #self.gate_source = HikariHF3205P(resource=r)
-                    #print("Fonte conectada:", self.gate_source.idn())
+                sn = int(idn[-8:])
 
-                if int(idn[-8:]) == 9437206:
+                if sn == 9437206:
+                    inst.close()
+                    inst = None
                     self.drain_source = HikariHF3205P(resource=r)
                     print("Fonte conectada:", self.drain_source.idn())
 
             except Exception as e:
                 print(f"Error loading {r}: {e}")
+            finally:
+                if inst is not None:
+                    try:
+                        inst.close()
+                    except Exception:
+                        pass
                 
         time.sleep(0.5)
 
